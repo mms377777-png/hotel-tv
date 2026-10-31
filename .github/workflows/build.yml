@@ -1,0 +1,85 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-apk
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+
+      # Постоянный debug-ключ: без него каждая сборка подписывалась бы новым ключом
+      # и не ставилась бы поверх предыдущей. Пароль "android" — стандартный для debug,
+      # не секрет. Для релиза владелец позже добавит свой ключ в GitHub Secrets.
+      - name: Restore debug keystore
+        uses: actions/cache@v4
+        with:
+          path: ~/.hotel-tv/debug.keystore
+          key: hotel-tv-debug-keystore-v1
+
+      - name: Create debug keystore if missing
+        run: |
+          mkdir -p ~/.hotel-tv
+          if [ ! -f ~/.hotel-tv/debug.keystore ]; then
+            keytool -genkeypair -v -keystore ~/.hotel-tv/debug.keystore \
+              -storepass android -keypass android -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+          echo "DEBUG_KEYSTORE=$HOME/.hotel-tv/debug.keystore" >> "$GITHUB_ENV"
+
+      - name: Build debug APK
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Rename APK
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk hotel-tv.apk
+          ls -la hotel-tv.apk
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotel-tv-apk
+          path: hotel-tv.apk
+
+      - name: Move tag "latest" to this commit
+        run: |
+          git tag -f latest
+          git push -f origin refs/tags/latest
+
+      - name: Publish release "latest"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Последняя сборка (v1.0.${{ github.run_number }})
+          body: |
+            Автосборка v1.0.${{ github.run_number }} из коммита ${{ github.sha }}.
+            Установка на ТВ: приложение Downloader → ссылка на файл hotel-tv.apk ниже.
+          files: hotel-tv.apk
+          make_latest: true
+          token: ${{ secrets.GITHUB_TOKEN }}

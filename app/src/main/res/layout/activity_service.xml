@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="48dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="48dp"
+        android:paddingBottom="24dp">
+
+        <!-- Левая колонка: настройки -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.2"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Служебное меню"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView style="@style/FieldLabel" android:text="Номер комнаты" />
+            <EditText
+                android:id="@+id/editRoom"
+                style="@style/FieldEdit"
+                android:hint="например, 205" />
+
+            <TextView style="@style/FieldLabel" android:text="Название гостиницы" />
+            <EditText
+                android:id="@+id/editHotel"
+                style="@style/FieldEdit" />
+
+            <TextView style="@style/FieldLabel" android:text="Имя гостя (пусто — не показывать)" />
+            <EditText
+                android:id="@+id/editGuest"
+                style="@style/FieldEdit" />
+
+            <TextView style="@style/FieldLabel" android:text="REPORT_URL — адрес для отчётов (пусто — только журнал)" />
+            <EditText
+                android:id="@+id/editReportUrl"
+                style="@style/FieldEdit"
+                android:inputType="textUri" />
+
+            <TextView style="@style/FieldLabel" android:text="Адрес теста загрузки (download)" />
+            <EditText
+                android:id="@+id/editDownloadUrl"
+                style="@style/FieldEdit"
+                android:inputType="textUri" />
+
+            <TextView style="@style/FieldLabel" android:text="Адрес теста отдачи (upload)" />
+            <EditText
+                android:id="@+id/editUploadUrl"
+                style="@style/FieldEdit"
+                android:inputType="textUri" />
+
+            <TextView style="@style/FieldLabel" android:text="Адрес для пинга" />
+            <EditText
+                android:id="@+id/editPingUrl"
+                style="@style/FieldEdit"
+                android:inputType="textUri" />
+
+            <TextView style="@style/FieldLabel" android:text="Новый PIN (4 цифры; пусто — не менять)" />
+            <EditText
+                android:id="@+id/editPin"
+                style="@style/FieldEdit"
+                android:inputType="numberPassword"
+                android:maxLength="4" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnSave"
+                    style="@style/TvButton"
+                    android:text="Сохранить" />
+
+                <Button
+                    android:id="@+id/btnClose"
+                    style="@style/TvButton"
+                    android:text="Закрыть" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Правая колонка: информация и действия -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Устройство"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/deviceInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp"
+                android:textColor="#D8E2F2"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnFullTest"
+                style="@style/TvButton"
+                android:layout_width="match_parent"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="0dp"
+                android:text="Полная проверка интернета" />
+
+            <Button
+                android:id="@+id/btnAutoNow"
+                style="@style/TvButton"
+                android:layout_width="match_parent"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="0dp"
+                android:text="Автопроверка сейчас (с отчётом)" />
+
+            <Button
+                android:id="@+id/btnSettings"
+                style="@style/TvButton"
+                android:layout_width="match_parent"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="0dp"
+                android:text="Настройки Android" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
