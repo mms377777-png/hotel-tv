@@ -30,6 +30,7 @@ if "%IP%"=="192.168.0.183" set ROOM=9
 if "%IP%"=="192.168.0.19" set ROOM=10
 if "%IP%"=="192.168.0.23" set ROOM=11
 if "%IP%"=="192.168.0.248" set ROOM=12
+if "%IP%"=="192.168.0.58" set ROOM=13
 if "%IP%"=="192.168.0.2" set ROOM=14
 if not defined ROOM (echo SKIP %S% ip=%IP% >> %LOG%& goto :eof)
 if defined DONE_%ROOM% (echo DUP %S% room %ROOM% >> %LOG%& goto :eof)
