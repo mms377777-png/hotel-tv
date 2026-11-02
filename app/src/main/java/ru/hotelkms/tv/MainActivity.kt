@@ -101,7 +101,7 @@ class MainActivity : Activity() {
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             rowTiles.forEach { tile ->
                 val v = makeTile(tile)
-                val lp = LinearLayout.LayoutParams(0, dp(110), 1f)
+                val lp = LinearLayout.LayoutParams(0, dp(104), 1f)
                 lp.setMargins(dp(8), dp(6), dp(8), dp(6))
                 row.addView(v, lp)
                 if (firstTile == null) firstTile = v
