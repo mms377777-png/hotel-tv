@@ -40,11 +40,15 @@ echo ---- ROOM %ROOM% %S% %IP% >> %LOG%
 %ADB% -s %S% shell pm uninstall --user 0 mobi.zona >> %LOG% 2>&1
 %ADB% -s %S% shell am force-stop ru.hotelkms.tv
 > hp.xml echo ^<?xml version='1.0' encoding='utf-8' standalone='yes' ?^>
->> hp.xml echo ^<map^>^<string name="room"^>%ROOM%^</string^>^</map^>
+>> hp.xml echo ^<map^>^<string name="room"^>%ROOM%^</string^>^<string name="wifi_ssid"^>%WSSID%^</string^>^<string name="wifi_pass"^>%WPASS%^</string^>^</map^>
 %ADB% -s %S% push hp.xml /data/local/tmp/hp.xml >nul 2>&1
 %ADB% -s %S% shell "run-as ru.hotelkms.tv sh -c 'mkdir -p shared_prefs; cp /data/local/tmp/hp.xml shared_prefs/hotel_tv.xml'" >> %LOG% 2>&1
 %ADB% -s %S% shell rm /data/local/tmp/hp.xml
 %ADB% -s %S% shell cmd package set-home-activity ru.hotelkms.tv/.MainActivity >> %LOG% 2>&1
+%ADB% -s %S% shell cmd role add-role-holder --user 0 android.app.role.HOME ru.hotelkms.tv >> %LOG% 2>&1
+%ADB% -s %S% shell pm disable-user --user 0 com.google.android.tvlauncher >> %LOG% 2>&1
+%ADB% -s %S% shell "pm disable-user --user 0 com.android.vending; for p in $(pm list packages | cut -d: -f2); do appops set $p REQUEST_INSTALL_PACKAGES deny 2>/dev/null; done; settings put secure install_non_market_apps 0; echo LOCKED" >> %LOG% 2>&1
+%ADB% -s %S% shell "for p in $(pm list packages -3 | cut -d: -f2 | grep -v hotelkms); do pm clear $p >/dev/null; done; echo CLEARED" >> %LOG% 2>&1
 %ADB% -s %S% shell input keyevent 3
 %ADB% -s %S% shell "run-as ru.hotelkms.tv cat shared_prefs/hotel_tv.xml" >> %LOG% 2>&1
 %ADB% -s %S% shell dumpsys package ru.hotelkms.tv ^| grep versionName >> %LOG% 2>&1
