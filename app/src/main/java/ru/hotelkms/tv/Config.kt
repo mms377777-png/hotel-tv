@@ -21,6 +21,10 @@ object Config {
     /** Адрес для отчётов (Google Apps Script). Пусто — отчёты только пишутся в журнал (logcat). */
     const val DEFAULT_REPORT_URL = ""
 
+    /** Журнал замеров: Google Форма «HotelTV — журнал ТВ и телефонов» (ответы → таблица). */
+    const val FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+    const val FORM_ENTRY = "entry.1026545154"
+
     // Город: Комсомольск-на-Амуре
     const val CITY_LAT = 50.55
     const val CITY_LON = 137.01

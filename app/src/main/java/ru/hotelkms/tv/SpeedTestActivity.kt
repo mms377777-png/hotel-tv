@@ -115,7 +115,7 @@ class SpeedTestActivity : Activity() {
         val r = last ?: SpeedResult()
         Bg.io.execute {
             val ok = Reporter.send(app, Reporter.build(app, Reporter.TYPE_COMPLAINT, r))
-            val noUrl = Prefs(app).reportUrl.isBlank()
+            val noUrl = false
             ui {
                 status.text = when {
                     ok -> "Сообщение отправлено администратору. Спасибо!"

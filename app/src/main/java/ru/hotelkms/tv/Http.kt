@@ -49,6 +49,26 @@ object Http {
         }
     }
 
+    /** POST формы (application/x-www-form-urlencoded) — для Google Форм. */
+    fun postForm(url: String, fields: Map<String, String>): Boolean {
+        val body = fields.entries.joinToString("&") {
+            java.net.URLEncoder.encode(it.key, "UTF-8") + "=" + java.net.URLEncoder.encode(it.value, "UTF-8")
+        }
+        val c = open(url)
+        try {
+            c.instanceFollowRedirects = false
+            c.requestMethod = "POST"
+            c.doOutput = true
+            val bytes = body.toByteArray(Charsets.UTF_8)
+            c.setFixedLengthStreamingMode(bytes.size)
+            c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
+            c.outputStream.use { it.write(bytes) }
+            return c.responseCode in 200..399
+        } finally {
+            c.disconnect()
+        }
+    }
+
     /** Добавляет параметр против кэширования. */
     fun noCache(url: String): String {
         val sep = if (url.contains('?')) '&' else '?'

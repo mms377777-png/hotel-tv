@@ -45,7 +45,7 @@ object AutoChecker {
             val r = SpeedTest(prefs).light()
             val sent = Reporter.send(c, Reporter.build(c, Reporter.TYPE_AUTO, r))
             val line = "${Reporter.timestamp()}: ${r.summary()}" +
-                if (prefs.reportUrl.isBlank()) " (REPORT_URL не задан)"
+                if (false) ""
                 else if (sent) " (отчёт отправлен)" else " (отчёт в очереди)"
             prefs.lastAutoCheck = line
             if (onDone != null) Bg.ui { onDone(line) }

@@ -57,8 +57,7 @@ object Reporter {
     private fun sendLocked(ctx: Context, report: JSONObject): Boolean {
         Log.i(SpeedTest.TAG, "report: $report")
         val p = Prefs(ctx)
-        val url = p.reportUrl.trim()
-        if (url.isEmpty()) return false
+        val url = p.reportUrl.trim().ifEmpty { Config.FORM_URL }
 
         val queue = try { JSONArray(p.pendingReports) } catch (e: Exception) { JSONArray() }
         queue.put(report)
@@ -68,7 +67,8 @@ object Reporter {
         for (i in 0 until queue.length()) {
             val item = queue.optJSONObject(i) ?: continue
             val ok = networkOk && try {
-                Http.postJson(url, item.toString())
+                if (url.contains("/formResponse")) Http.postForm(url, mapOf(Config.FORM_ENTRY to formLine(item)))
+                else Http.postJson(url, item.toString())
             } catch (e: Exception) {
                 Log.w(SpeedTest.TAG, "report send failed: ${e.message}")
                 false
@@ -86,6 +86,35 @@ object Reporter {
         for (i in from until left.length()) trimmed.put(left.get(i))
         p.pendingReports = trimmed.toString()
         return delivered
+    }
+
+    /**
+     * Строка для журнала (Google Форма → таблица «Гостиницы — интернет в номерах и телефоны»):
+     * гостиница;интернет;номер;загрузка;отдача;пинг;сигнал;оценка;кто
+     */
+    private fun formLine(r: JSONObject): String {
+        val h = r.optString("hotel")
+        val hotel = when {
+            h.contains("Пушкин", true) -> "Пушкин"
+            h.contains("Сити", true) || h.contains("City", true) -> "Сити"
+            else -> h
+        }
+        fun num(k: String): String = if (r.isNull(k)) "" else r.opt(k).toString().replace('.', ',')
+        val down = if (r.isNull("down_mbps")) null else r.optDouble("down_mbps")
+        val grade = when {
+            down == null -> "нет связи"
+            down >= 20 -> "хорошо"
+            down >= 5 -> "средне"
+            else -> "плохо"
+        }
+        val rssi = if (r.isNull("wifi_rssi")) "" else "${r.optInt("wifi_rssi")} dBm"
+        val who = when (r.optString("type")) {
+            TYPE_AUTO -> "авто"
+            TYPE_COMPLAINT -> "гость (жалоба)"
+            else -> "гость"
+        }
+        return listOf(hotel, "интернет", r.optString("room"), num("down_mbps"), num("up_mbps"),
+            num("ping_ms"), rssi, grade, who).joinToString(";") { it.replace(";", ",") }
     }
 
     fun pendingCount(ctx: Context): Int =
