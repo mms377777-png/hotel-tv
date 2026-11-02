@@ -177,6 +177,7 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        AutoChecker.onWake(this)
         resumed = true
         refreshLabels()
         refreshTileIcons()

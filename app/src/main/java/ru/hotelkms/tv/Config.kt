@@ -63,6 +63,5 @@ object Config {
         AppTile("YouTube", listOf("com.google.android.youtube.tv")),
         AppTile("Кинопоиск", listOf("ru.kinopoisk", "ru.kinopoisk.tv")),
         AppTile("Wink", listOf("ru.rt.video.app.tv", "ru.rt.video.app.mobile")),
-        AppTile("ТВ-каналы", listOf("com.google.android.tv", "com.android.tv"), isTvChannels = true),
     )
 }

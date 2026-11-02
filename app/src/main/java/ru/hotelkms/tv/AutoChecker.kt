@@ -23,6 +23,19 @@ object AutoChecker {
         Log.i(SpeedTest.TAG, "auto check scheduled")
     }
 
+    private var lastWakeCheck = 0L
+    private val wakeRun = Runnable { runNow(appCtx, null) }
+
+    /** Телевизор включили (экран снова на переднем плане) — проверить интернет через минуту, не чаще раза в 5 минут. */
+    fun onWake(ctx: Context) {
+        appCtx = ctx.applicationContext
+        val now = System.currentTimeMillis()
+        if (now - lastWakeCheck < 5L * 60 * 1000) return
+        lastWakeCheck = now
+        Bg.main.removeCallbacks(wakeRun)
+        Bg.main.postDelayed(wakeRun, 60L * 1000)
+    }
+
     /** Запустить проверку сейчас; onDone вызывается в UI-потоке с текстом результата. */
     fun runNow(ctx: Context, onDone: ((String) -> Unit)?) {
         val c = ctx.applicationContext
