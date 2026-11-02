@@ -36,9 +36,10 @@ object Config {
     const val WEATHER_REFRESH_MS = 30L * 60 * 1000
 
     // Проверка скорости
-    // Cloudflare у российских провайдеров режется (~16 КБ на соединение) — качаем с зеркала Яндекса.
-    const val DEFAULT_DOWNLOAD_URL = "https://mirror.yandex.ru/debian/ls-lR.gz"
-    const val FALLBACK_DOWNLOAD_URL = "https://speed.cloudflare.com/__down?bytes=25000000"
+    // Основной — Cloudflare (в Сити даёт 6–12 Мбит/с; зеркало Яндекса из Комсомольска — 0,2–1 Мбит/с).
+    // Если Cloudflare не ответил — пробуем зеркало Яндекса.
+    const val DEFAULT_DOWNLOAD_URL = "https://speed.cloudflare.com/__down?bytes=25000000"
+    const val FALLBACK_DOWNLOAD_URL = "https://mirror.yandex.ru/debian/ls-lR.gz"
     const val DEFAULT_UPLOAD_URL = "https://speed.cloudflare.com/__up"
     const val DEFAULT_PING_URL = "https://ya.ru/favicon.ico"
 
