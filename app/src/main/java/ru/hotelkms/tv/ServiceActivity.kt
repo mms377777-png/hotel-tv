@@ -17,6 +17,8 @@ class ServiceActivity : Activity() {
     private lateinit var editRoom: EditText
     private lateinit var editHotel: EditText
     private lateinit var editGuest: EditText
+    private lateinit var editWifiSsid: EditText
+    private lateinit var editWifiPass: EditText
     private lateinit var editReportUrl: EditText
     private lateinit var editDownloadUrl: EditText
     private lateinit var editUploadUrl: EditText
@@ -32,6 +34,8 @@ class ServiceActivity : Activity() {
         editRoom = findViewById(R.id.editRoom)
         editHotel = findViewById(R.id.editHotel)
         editGuest = findViewById(R.id.editGuest)
+        editWifiSsid = findViewById(R.id.editWifiSsid)
+        editWifiPass = findViewById(R.id.editWifiPass)
         editReportUrl = findViewById(R.id.editReportUrl)
         editDownloadUrl = findViewById(R.id.editDownloadUrl)
         editUploadUrl = findViewById(R.id.editUploadUrl)
@@ -42,6 +46,8 @@ class ServiceActivity : Activity() {
         editRoom.setText(prefs.room)
         editHotel.setText(prefs.hotelName)
         editGuest.setText(prefs.guestName)
+        editWifiSsid.setText(prefs.wifiSsid)
+        editWifiPass.setText(prefs.wifiPass)
         editReportUrl.setText(prefs.reportUrl)
         editDownloadUrl.setText(prefs.downloadUrl)
         editUploadUrl.setText(prefs.uploadUrl)
@@ -91,6 +97,8 @@ class ServiceActivity : Activity() {
         prefs.room = editRoom.text.toString().trim()
         prefs.hotelName = editHotel.text.toString().trim()
         prefs.guestName = editGuest.text.toString().trim()
+        prefs.wifiSsid = editWifiSsid.text.toString().trim()
+        prefs.wifiPass = editWifiPass.text.toString().trim()
         prefs.reportUrl = editReportUrl.text.toString().trim()
         prefs.downloadUrl = editDownloadUrl.text.toString().trim()
         prefs.uploadUrl = editUploadUrl.text.toString().trim()

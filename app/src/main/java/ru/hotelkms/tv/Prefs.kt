@@ -23,6 +23,14 @@ class Prefs(context: Context) {
         get() = str("guest_name", Config.DEFAULT_GUEST_NAME)
         set(v) = put("guest_name", v)
 
+    var wifiSsid: String
+        get() = str("wifi_ssid", "")
+        set(v) = put("wifi_ssid", v)
+
+    var wifiPass: String
+        get() = str("wifi_pass", "")
+        set(v) = put("wifi_pass", v)
+
     var reportUrl: String
         get() = str("report_url", Config.DEFAULT_REPORT_URL)
         set(v) = put("report_url", v)

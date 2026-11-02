@@ -44,6 +44,16 @@
                 android:id="@+id/editGuest"
                 style="@style/FieldEdit" />
 
+            <TextView style="@style/FieldLabel" android:text="Wi‑Fi для гостей (название)" />
+            <EditText
+                android:id="@+id/editWifiSsid"
+                style="@style/FieldEdit" />
+
+            <TextView style="@style/FieldLabel" android:text="Пароль Wi‑Fi" />
+            <EditText
+                android:id="@+id/editWifiPass"
+                style="@style/FieldEdit" />
+
             <TextView style="@style/FieldLabel" android:text="REPORT_URL — адрес для отчётов (пусто — только журнал)" />
             <EditText
                 android:id="@+id/editReportUrl"

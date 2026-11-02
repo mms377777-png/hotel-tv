@@ -18,6 +18,12 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import android.graphics.Bitmap
+import android.graphics.Color
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.google.zxing.qrcode.QRCodeWriter
+import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -31,6 +37,12 @@ class MainActivity : Activity() {
     private lateinit var date: TextView
     private lateinit var weather: TextView
     private lateinit var guestName: TextView
+    private lateinit var greeting: TextView
+    private lateinit var wifiBlock: View
+    private lateinit var wifiSsidText: TextView
+    private lateinit var wifiPassText: TextView
+    private lateinit var wifiQr: ImageView
+    private var wifiQrKey: String? = null
     private lateinit var hotelName: TextView
     private lateinit var roomLabel: TextView
     private val tileIcons = mutableListOf<Pair<AppTile, ImageView>>()
@@ -63,6 +75,11 @@ class MainActivity : Activity() {
         date = findViewById(R.id.date)
         weather = findViewById(R.id.weather)
         guestName = findViewById(R.id.guestName)
+        greeting = findViewById(R.id.greeting)
+        wifiBlock = findViewById(R.id.wifiBlock)
+        wifiSsidText = findViewById(R.id.wifiSsidText)
+        wifiPassText = findViewById(R.id.wifiPassText)
+        wifiQr = findViewById(R.id.wifiQr)
         hotelName = findViewById(R.id.hotelName)
         roomLabel = findViewById(R.id.roomLabel)
 
@@ -144,8 +161,11 @@ class MainActivity : Activity() {
     private fun refreshLabels() {
         hotelName.text = "Гостиница «${prefs.hotelName}»"
         val guest = prefs.guestName.trim()
-        guestName.visibility = if (guest.isEmpty()) View.GONE else View.VISIBLE
+        // имя гостя показываем в приветствии, отдельная строка не нужна
+        guestName.visibility = View.GONE
         guestName.text = guest
+        updateGreeting()
+        refreshWifi()
         val room = prefs.room.trim()
         roomLabel.text = if (room.isEmpty()) "" else "Номер $room"
     }
@@ -154,6 +174,63 @@ class MainActivity : Activity() {
         val now = Date()
         clock.text = timeFmt.format(now)
         date.text = dateFmt.format(now).replaceFirstChar { it.titlecase(ru) }
+        updateGreeting()
+    }
+
+    private fun updateGreeting() {
+        val hour = Calendar.getInstance(tz).get(Calendar.HOUR_OF_DAY)
+        val hello = when (hour) {
+            in 5..11 -> "Доброе утро"
+            in 12..17 -> "Добрый день"
+            in 18..22 -> "Добрый вечер"
+            else -> "Доброй ночи"
+        }
+        val guest = prefs.guestName.trim()
+        greeting.text = if (guest.isEmpty()) "$hello!" else "$hello, $guest!"
+    }
+
+    private fun refreshWifi() {
+        val ssid = prefs.wifiSsid.trim()
+        if (ssid.isEmpty()) {
+            wifiBlock.visibility = View.GONE
+            wifiQrKey = null
+            return
+        }
+        val pass = prefs.wifiPass
+        wifiSsidText.text = "Wi‑Fi: $ssid"
+        wifiPassText.text = "Пароль: $pass"
+        wifiPassText.visibility = if (pass.isEmpty()) View.GONE else View.VISIBLE
+        val payload = wifiPayload(ssid, pass)
+        if (payload != wifiQrKey) {
+            wifiQrKey = payload
+            wifiQr.setImageBitmap(makeQr(payload, 400))
+        }
+        wifiBlock.visibility = View.VISIBLE
+    }
+
+    private fun wifiEscape(s: String): String {
+        val sb = StringBuilder()
+        for (c in s) {
+            if (c == '\\' || c == ';' || c == ',' || c == ':' || c == '"') sb.append('\\')
+            sb.append(c)
+        }
+        return sb.toString()
+    }
+
+    private fun wifiPayload(ssid: String, pass: String): String =
+        if (pass.isEmpty()) "WIFI:T:nopass;S:${wifiEscape(ssid)};;"
+        else "WIFI:T:WPA;S:${wifiEscape(ssid)};P:${wifiEscape(pass)};;"
+
+    private fun makeQr(text: String, size: Int): Bitmap? = try {
+        val hints = mapOf(EncodeHintType.MARGIN to 2, EncodeHintType.CHARACTER_SET to "UTF-8")
+        val m = QRCodeWriter().encode(text, BarcodeFormat.QR_CODE, size, size, hints)
+        val px = IntArray(m.width * m.height)
+        for (y in 0 until m.height) for (x in 0 until m.width) {
+            px[y * m.width + x] = if (m.get(x, y)) Color.BLACK else Color.WHITE
+        }
+        Bitmap.createBitmap(px, m.width, m.height, Bitmap.Config.ARGB_8888)
+    } catch (e: Exception) {
+        null
     }
 
     private fun refreshWeather() {
