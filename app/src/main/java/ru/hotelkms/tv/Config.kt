@@ -36,9 +36,11 @@ object Config {
     const val WEATHER_REFRESH_MS = 30L * 60 * 1000
 
     // Проверка скорости
-    const val DEFAULT_DOWNLOAD_URL = "https://speed.cloudflare.com/__down?bytes=25000000"
+    // Cloudflare у российских провайдеров режется (~16 КБ на соединение) — качаем с зеркала Яндекса.
+    const val DEFAULT_DOWNLOAD_URL = "https://mirror.yandex.ru/debian/ls-lR.gz"
+    const val FALLBACK_DOWNLOAD_URL = "https://speed.cloudflare.com/__down?bytes=25000000"
     const val DEFAULT_UPLOAD_URL = "https://speed.cloudflare.com/__up"
-    const val DEFAULT_PING_URL = "https://speed.cloudflare.com/__down?bytes=0"
+    const val DEFAULT_PING_URL = "https://ya.ru/favicon.ico"
 
     const val PING_COUNT = 6
     const val FULL_DOWNLOAD_MAX_BYTES = 25_000_000L

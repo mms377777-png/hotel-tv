@@ -52,11 +52,16 @@ class SpeedTest(private val prefs: Prefs) {
     }
 
     /** Скорость загрузки, Мбит/с. Читает до maxBytes байт или до maxMs миллисекунд. */
-    fun download(maxBytes: Long, maxMs: Long): Double? {
+    fun download(maxBytes: Long, maxMs: Long): Double? =
+        downloadFrom(prefs.downloadUrl, maxBytes, maxMs)
+            ?: if (prefs.downloadUrl != Config.FALLBACK_DOWNLOAD_URL)
+                downloadFrom(Config.FALLBACK_DOWNLOAD_URL, maxBytes, maxMs) else null
+
+    private fun downloadFrom(url: String, maxBytes: Long, maxMs: Long): Double? {
         var total = 0L
         var elapsed = 0L
         try {
-            val c = Http.open(Http.noCache(prefs.downloadUrl), 7000, 10000)
+            val c = Http.open(Http.noCache(url), 7000, 10000)
             try {
                 if (c.responseCode !in 200..299) return null
                 val t0 = SystemClock.elapsedRealtime()

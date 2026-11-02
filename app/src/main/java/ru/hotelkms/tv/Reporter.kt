@@ -102,7 +102,8 @@ object Reporter {
         fun num(k: String): String = if (r.isNull(k)) "" else r.opt(k).toString().replace('.', ',')
         val down = if (r.isNull("down_mbps")) null else r.optDouble("down_mbps")
         val grade = when {
-            down == null -> "нет связи"
+            down == null && r.isNull("ping_ms") -> "нет связи"
+            down == null -> "замер не прошёл"
             down >= 20 -> "хорошо"
             down >= 5 -> "средне"
             else -> "плохо"
