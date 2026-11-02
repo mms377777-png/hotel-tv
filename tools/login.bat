@@ -9,6 +9,6 @@ platform-tools\adb.exe -s %S% shell input keyevent 224
 platform-tools\adb.exe -s %S% shell am start -a android.settings.ADD_ACCOUNT_SETTINGS --esa account_types com.google
 timeout /t 8 >nul
 platform-tools\adb.exe -s %S% shell uiautomator dump /sdcard/u.xml >nul
-platform-tools\adb.exe -s %S% pull /sdcard/u.xml u.xml >nul
-powershell -noprofile -command "([xml](gc u.xml -Encoding UTF8)).SelectNodes('//node') | %% { $_.text } | ? { $_ } | Out-File -Encoding utf8 ui.txt" 2>nul
+platform-tools\adb.exe -s %S% shell "grep -o 'text=\"[^\"]*\"' /sdcard/u.xml | grep -v 'text=\"\"'" > ui.txt
+chcp 65001 >nul
 type ui.txt
