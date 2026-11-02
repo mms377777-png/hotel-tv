@@ -89,6 +89,14 @@
             android:name=".SnakeActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
+        <activity
+            android:name=".TetrisActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".Game2048Activity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
 
         <receiver
             android:name=".BootReceiver"

@@ -35,7 +35,11 @@ class GamesActivity : Activity() {
         })
 
         var first: View? = null
-        val games = listOf("Змейка" to SnakeActivity::class.java)
+        val games = listOf(
+            "Змейка" to SnakeActivity::class.java,
+            "Тетрис" to TetrisActivity::class.java,
+            "2048" to Game2048Activity::class.java
+        )
         for ((name, cls) in games) {
             val b = Button(this).apply {
                 text = name
