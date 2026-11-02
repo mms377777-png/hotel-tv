@@ -11,6 +11,7 @@ n=0
 while [ $n -lt 12 ]; do
   NAME=$(dumpsys account | grep -m1 'Account {' | sed 's/.*Account {name=\(.*\), type=.*/\1/')
   [ -z "$NAME" ] && { echo "uchetok net"; break; }
+  am force-stop com.android.tv.settings
   am start -a android.settings.SYNC_SETTINGS >/dev/null 2>&1
   sleep 3
   if tap "$NAME"; then

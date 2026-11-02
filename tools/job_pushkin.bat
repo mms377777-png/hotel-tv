@@ -1,5 +1,5 @@
 @echo off
-rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 14
+rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 15
 cd /d C:\hoteltv
 curl -sfL -o pushkin.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pushkin.bat
 call pushkin.bat
@@ -14,7 +14,7 @@ curl -s -o nul -d "entry.1026545154=%%D0%%9F%%D1%%83%%D1%%88%%D0%%BA%%D0%%B8%%D0
 if exist every.bat (call every.bat) else (curl -sfL -o every.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/every_pushkin.bat && call every.bat)
 rem v12: Kinopoisk cherez RuStore i Rutube
 curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
-call apps.bat Pushkin
+rem call apps.bat Pushkin (uzhe sdelano)
 cd /d C:\hoteltv
 rem v14: svodka po TV dlya tablitsy
 curl -sfL -o info.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/info.bat
