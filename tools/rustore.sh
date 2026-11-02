@@ -14,7 +14,7 @@ sleep 10
 i=0
 while [ $i -lt 36 ]; do
   pm path $P >/dev/null 2>&1 && { echo "$P OK"; input keyevent KEYCODE_HOME; exit 0; }
-  tap "Установить" || tap "Продолжить" || tap "Разрешить" || tap "ОК" || tap "Принять" || tap "Пропустить" || tap "Не сейчас"
+  tap "Скачать" || tap "Установить" || tap "Продолжить" || tap "Разрешить" || tap "ОК" || tap "Принять" || tap "Пропустить" || tap "Не сейчас"
   sleep 5
   i=$((i+1))
 done

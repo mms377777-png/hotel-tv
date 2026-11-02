@@ -1,5 +1,5 @@
 @echo off
-rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 12
+rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 13
 cd /d C:\hoteltv
 curl -sfL -o pushkin.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pushkin.bat
 call pushkin.bat
@@ -18,7 +18,7 @@ call apps.bat Pushkin
 cd /d C:\hoteltv
 rem v12b: udalenie uchetok prezhnih gostey na TV 305-307 (skript tools/rmacc.sh vypolnyaetsya na TV)
 curl -sfL -o rmacc.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rmacc.sh
-for %%I in (110 111 112) do call :acc %%I
+for %%I in (110) do call :acc %%I
 goto :eof
 :acc
 platform-tools\adb.exe -s 192.168.1.%1:5555 push rmacc.sh /data/local/tmp/rmacc.sh >nul 2>&1
