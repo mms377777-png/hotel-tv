@@ -24,9 +24,8 @@ for /f %%r in ('%ADB% -s %S% shell "dumpsys account | grep -c hoteltvkms"') do s
 if not "%HAS%"=="0" (echo %K% UZHE VOSHEL>> glogin_log.txt& goto :eof)
 %ADB% -s %S% shell "input keyevent 224; am start -a android.settings.ADD_ACCOUNT_SETTINGS --esa account_types com.google" >nul 2>&1
 timeout /t 12 >nul
-call :hasedit
-if not "%E%"=="EDIT" (%ADB% -s %S% shell input keyevent 23& timeout /t 12 >nul& call :hasedit)
-if not "%E%"=="EDIT" (echo %K% NET POLYA POCHTY>> glogin_log.txt& goto :home)
+%ADB% -s %S% shell input keyevent 23
+timeout /t 12 >nul
 %ADB% -s %S% shell "input keyevent 123; input keyevent 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67; input text hoteltvkms@gmail.com; sleep 1; input keyevent 66"
 timeout /t 14 >nul
 set PW=
