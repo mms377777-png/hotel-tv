@@ -1,5 +1,5 @@
 @echo off
-rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 2
+rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 3
 cd /d C:\hoteltv
 curl -sfL -o city.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/city.bat
 call city.bat
