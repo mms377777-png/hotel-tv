@@ -48,7 +48,6 @@ echo ---- ROOM %ROOM% %S% %IP% >> %LOG%
 %ADB% -s %S% shell cmd role add-role-holder --user 0 android.app.role.HOME ru.hotelkms.tv >> %LOG% 2>&1
 %ADB% -s %S% shell pm disable-user --user 0 com.google.android.tvlauncher >> %LOG% 2>&1
 %ADB% -s %S% shell "pm disable-user --user 0 com.android.vending; for p in $(pm list packages | cut -d: -f2); do appops set $p REQUEST_INSTALL_PACKAGES deny 2>/dev/null; done; settings put secure install_non_market_apps 0; echo LOCKED" >> %LOG% 2>&1
-%ADB% -s %S% shell "for p in $(pm list packages -3 | cut -d: -f2 | grep -v hotelkms); do pm clear $p >/dev/null; done; echo CLEARED" >> %LOG% 2>&1
 %ADB% -s %S% shell input keyevent 3
 %ADB% -s %S% shell "run-as ru.hotelkms.tv cat shared_prefs/hotel_tv.xml" >> %LOG% 2>&1
 %ADB% -s %S% shell dumpsys package ru.hotelkms.tv ^| grep versionName >> %LOG% 2>&1
