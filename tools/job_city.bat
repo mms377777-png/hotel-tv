@@ -13,12 +13,12 @@ for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"
 curl -s -o nul -d "entry.1026545154=%%D0%%A1%%D0%%B8%%D1%%82%%D0%%B8%%3B%%D1%%81%%D1%%82%%D0%%BE%%D0%%B9%%D0%%BA%%D0%%B0%%3B%%D0%%B7%%D0%%B0%%D0%%B4%%D0%%B0%%D0%%BD%%D0%%B8%%D0%%B5%%20v7%%3Badb%%3D%N%%%3Bschtasks%%3D%SCH%" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
 if exist every.bat (call every.bat) else (curl -sfL -o every.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/every_city.bat && call every.bat)
 goto :eof
-rem v14: svodka po TV dlya tablitsy
-curl -sfL -o info.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/info.bat
-call info.bat Siti
-cd /d C:\hoteltv
 rem v12: Kinopoisk cherez RuStore i Rutube
 curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
 call apps.bat Siti
+cd /d C:\hoteltv
+rem v14: svodka po TV dlya tablitsy
+curl -sfL -o info.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/info.bat
+call info.bat Siti
 cd /d C:\hoteltv
 goto :eof
