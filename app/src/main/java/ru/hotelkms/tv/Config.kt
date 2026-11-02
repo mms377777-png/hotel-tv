@@ -5,6 +5,8 @@ data class AppTile(
     val title: String,
     val packages: List<String>,
     val isTvChannels: Boolean = false,
+    /** Плитка открывает встроенный раздел «Игры», а не внешнее приложение. */
+    val isGames: Boolean = false,
 )
 
 /**
@@ -63,5 +65,8 @@ object Config {
         AppTile("YouTube", listOf("com.google.android.youtube.tv")),
         AppTile("Кинопоиск", listOf("ru.kinopoisk", "ru.kinopoisk.tv")),
         AppTile("Wink", listOf("ru.rt.video.app.tv", "ru.rt.video.app.mobile")),
+        AppTile("ivi", listOf("ru.ivi.client", "ru.ivi.client.tv")),
+        AppTile("Okko", listOf("tv.okko.androidtv", "ru.okko.tv", "tv.okko.android")),
+        AppTile("Игры", emptyList(), isGames = true),
     )
 }

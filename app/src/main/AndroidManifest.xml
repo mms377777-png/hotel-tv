@@ -21,6 +21,11 @@
         <package android:name="ru.kinopoisk.tv" />
         <package android:name="ru.rt.video.app.tv" />
         <package android:name="ru.rt.video.app.mobile" />
+        <package android:name="ru.ivi.client" />
+        <package android:name="ru.ivi.client.tv" />
+        <package android:name="tv.okko.androidtv" />
+        <package android:name="ru.okko.tv" />
+        <package android:name="tv.okko.android" />
         <package android:name="com.google.android.tv" />
         <package android:name="com.android.tv" />
         <package android:name="com.android.vending" />
@@ -74,6 +79,16 @@
             android:exported="false"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustPan|stateHidden" />
+
+        <activity
+            android:name=".GamesActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
+        <activity
+            android:name=".SnakeActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
 
         <receiver
             android:name=".BootReceiver"

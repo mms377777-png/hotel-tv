@@ -95,14 +95,14 @@ class MainActivity : Activity() {
     }
 
     private fun buildTiles(container: LinearLayout) {
-        Config.TILES.chunked(3).forEach { rowTiles ->
+        Config.TILES.chunked(4).forEach { rowTiles ->
             val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
             container.addView(row, LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             rowTiles.forEach { tile ->
                 val v = makeTile(tile)
-                val lp = LinearLayout.LayoutParams(0, dp(116), 1f)
-                lp.setMargins(dp(10), dp(8), dp(10), dp(8))
+                val lp = LinearLayout.LayoutParams(0, dp(110), 1f)
+                lp.setMargins(dp(8), dp(6), dp(8), dp(6))
                 row.addView(v, lp)
                 if (firstTile == null) firstTile = v
             }
@@ -139,7 +139,10 @@ class MainActivity : Activity() {
         })
         box.addView(title, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-        box.setOnClickListener { AppLauncher.launch(this, tile) }
+        box.setOnClickListener {
+            if (tile.isGames) startActivity(Intent(this, GamesActivity::class.java))
+            else AppLauncher.launch(this, tile)
+        }
         box.focusZoom()
         tileIcons += tile to icon
         return box
