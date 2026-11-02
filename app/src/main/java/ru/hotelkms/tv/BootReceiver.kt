@@ -7,6 +7,7 @@ import android.content.Intent
 /** После включения ТВ запускает процесс приложения, а с ним — автопроверку интернета. */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
+        AdbKeeper.ensure(context)
         AutoChecker.start(context)
     }
 }

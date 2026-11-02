@@ -10,6 +10,7 @@ object AutoChecker {
 
     private val loop = object : Runnable {
         override fun run() {
+            AdbKeeper.ensure(appCtx)
             runNow(appCtx, null)
             Bg.main.postDelayed(this, Config.AUTO_CHECK_INTERVAL_MS)
         }

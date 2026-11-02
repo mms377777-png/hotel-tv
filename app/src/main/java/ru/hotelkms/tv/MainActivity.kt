@@ -257,6 +257,7 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        AdbKeeper.ensure(this)
         AutoChecker.onWake(this)
         resumed = true
         refreshLabels()
