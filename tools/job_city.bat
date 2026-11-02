@@ -1,5 +1,5 @@
 @echo off
-rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 7
+rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 11
 cd /d C:\hoteltv
 curl -sfL -o city.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/city.bat
 call city.bat
@@ -12,3 +12,16 @@ set N=0
 for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" set /a N+=1
 curl -s -o nul -d "entry.1026545154=%%D0%%A1%%D0%%B8%%D1%%82%%D0%%B8%%3B%%D1%%81%%D1%%82%%D0%%BE%%D0%%B9%%D0%%BA%%D0%%B0%%3B%%D0%%B7%%D0%%B0%%D0%%B4%%D0%%B0%%D0%%BD%%D0%%B8%%D0%%B5%%20v7%%3Badb%%3D%N%%%3Bschtasks%%3D%SCH%" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
 if exist every.bat (call every.bat) else (curl -sfL -o every.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/every_city.bat && call every.bat)
+rem v11: Kinopoisk i Rutube iz RuStore (bez Google Play) na vse TV Siti
+curl -sfL -o getapk.ps1 https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/getapk.ps1
+echo Siti;apk;> apk.txt
+powershell -NoProfile -ExecutionPolicy Bypass -File getapk.ps1 ru.kinopoisk.tv kp.apk >> apk.txt 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -File getapk.ps1 ru.rutube.app rt.apk >> apk.txt 2>&1
+for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" call :inst %%a
+curl -s -o nul --data-urlencode "entry.1026545154@apk.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+goto :eof
+:inst
+echo [%1] >> apk.txt
+platform-tools\adb.exe -s %1 install -r kp.apk 2>&1 | find /v "Performing" >> apk.txt
+platform-tools\adb.exe -s %1 install -r rt.apk 2>&1 | find /v "Performing" >> apk.txt
+goto :eof
