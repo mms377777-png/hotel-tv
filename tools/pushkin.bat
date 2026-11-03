@@ -16,6 +16,8 @@ endlocal
 %ADB% devices >> %LOG%
 for /f "skip=1 tokens=1,2" %%a in ('%ADB% devices') do if "%%b"=="device" call :one %%a
 echo ==== DONE ==== >> %LOG%
+rem nastroyki TV perezapisany - imena gostey otpravit zanovo
+if exist guests_state del /q guests_state\* >nul 2>&1
 type %LOG%
 goto :eof
 
