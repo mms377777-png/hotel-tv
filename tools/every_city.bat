@@ -9,7 +9,7 @@ for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"
   for /f %%s in ('platform-tools\adb.exe -s %%a shell getprop ro.serialno') do set SN=%%s
   if not "!SN!"=="" findstr /x /c:"!SN!" known_sn.txt >nul || (set "NEW=!NEW! !SN!" & echo !SN!>> known_sn.txt)
 )
-if "!NEW!"=="" goto :eof
+if "!NEW!"=="" goto :gosti
 echo ==== %date% %time% novye TV: !NEW! >> job_log.txt
 if exist wifi.cmd call wifi.cmd
 call city.bat >> job_log.txt 2>&1
@@ -18,3 +18,11 @@ curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/m
 call apps.bat Siti
 cd /d C:\hoteltv
 curl -s -o nul -d "entry.1026545154=%%D0%%A1%%D0%%B8%%D1%%82%%D0%%B8%%3B%%D1%%81%%D1%%82%%D0%%BE%%D0%%B9%%D0%%BA%%D0%%B0%%3B%%D0%%BD%%D0%%BE%%D0%%B2%%D1%%8B%%D0%%B5%%20%%D0%%A2%%D0%%92%%3B!NEW!" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+:gosti
+rem Gosti iz 1S (rabotaet, tolko esli na stoyke est guests.cfg)
+cd /d C:\hoteltv
+if exist guests.cfg (
+  curl -sfL -o guests.ps1 https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/guests.ps1
+  if not exist rmacc.sh curl -sfL -o rmacc.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rmacc.sh
+  powershell -NoProfile -ExecutionPolicy Bypass -File guests.ps1 city
+)

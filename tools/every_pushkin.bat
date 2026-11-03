@@ -25,3 +25,11 @@ for %%i in (122 200 201 202 203 204 205 206 208 209 210 211 212 213 214 215 216)
     echo 192.168.1.%%i !S!
   )
 )
+
+rem Gosti iz 1S (rabotaet, tolko esli na stoyke est guests.cfg)
+cd /d C:\hoteltv
+if exist guests.cfg (
+  curl -sfL -o guests.ps1 https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/guests.ps1
+  if not exist rmacc.sh curl -sfL -o rmacc.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rmacc.sh
+  powershell -NoProfile -ExecutionPolicy Bypass -File guests.ps1 pushkin
+)
