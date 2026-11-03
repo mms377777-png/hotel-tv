@@ -1,6 +1,19 @@
 @echo off
-rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 21
+rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 22
 cd /d C:\hoteltv
+rem v22: novaya sborka (fon - foto naberezhnoy, pogoda s zapasnymi istochnikami) + Okko iz RuStore
+if exist wifi.cmd call wifi.cmd
+curl -sfL -o pushkin.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pushkin.bat
+call pushkin.bat
+cd /d C:\hoteltv
+for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" platform-tools\adb.exe -s %%a shell pm grant ru.hotelkms.tv android.permission.WRITE_SECURE_SETTINGS
+curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
+call apps.bat Pushkin
+cd /d C:\hoteltv
+curl -sfL -o info.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/info.bat
+call info.bat Pushkin
+cd /d C:\hoteltv
+goto :eof
 rem v21: TV 304 (DEXP) pereklyuchen na Pushkin_TV: sopryazhenie po kodu, nomer po serijnomu, ustanovka
 (echo Pushkin;sopryazhenie;304)> pair.txt
 platform-tools\adb.exe pair 192.168.1.112:34305 351704 >> pair.txt 2>&1
