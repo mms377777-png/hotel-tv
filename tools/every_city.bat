@@ -3,6 +3,11 @@ rem Kazhdye 5 minut (Siti): esli poyavilsya NOVYY TV (po serialnomu nomeru) - st
 setlocal enabledelayedexpansion
 cd /d C:\hoteltv
 if not exist known_sn.txt type nul > known_sn.txt
+rem perepodklyuchenie TV po Wi-Fi (adb teryaet svyaz s TV, kogda TV zasypaet ili perezapuskaetsya adb)
+for /f "tokens=3" %%h in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr _adb-tls-connect') do platform-tools\adb.exe connect %%h >nul 2>&1
+set N=0
+for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" set /a N+=1
+if !N!==0 (platform-tools\adb.exe kill-server >nul 2>&1 & platform-tools\adb.exe start-server >nul 2>&1 & timeout /t 8 /nobreak >nul & for /f "tokens=3" %%h in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr _adb-tls-connect') do platform-tools\adb.exe connect %%h >nul 2>&1)
 set NEW=
 for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" (
   set SN=
