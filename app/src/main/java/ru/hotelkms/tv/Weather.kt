@@ -7,23 +7,38 @@ import kotlin.math.roundToInt
 object Weather {
     fun fetch(): String? = openMeteo() ?: metNo() ?: wttr()
 
-    private fun fmt(t: Int, desc: String): String {
-        val sign = if (t > 0) "+" else ""
-        return if (desc.isEmpty()) "$sign$t°" else "$sign$t°, $desc"
+    private fun deg(t: Int): String = when {
+        t > 0 -> "+$t°"
+        t < 0 -> "\u2212${-t}°"
+        else -> "0°"
+    }
+
+    /** «−7°, переменная облачность» и второй строкой «сегодня от −12° до −3°». */
+    private fun fmt(t: Int, desc: String, min: Int? = null, max: Int? = null): String {
+        val now = if (desc.isEmpty()) deg(t) else "${deg(t)}, $desc"
+        return if (min != null && max != null) "$now\nсегодня от ${deg(min)} до ${deg(max)}" else now
     }
 
     private fun openMeteo(): String? = try {
-        val cur = JSONObject(Http.getText(Config.WEATHER_URL)).getJSONObject("current")
-        fmt(cur.getDouble("temperature_2m").roundToInt(), describe(cur.optInt("weather_code", -1)))
+        val json = JSONObject(Http.getText(Config.WEATHER_URL))
+        val cur = json.getJSONObject("current")
+        val daily = json.optJSONObject("daily")
+        val min = daily?.optJSONArray("temperature_2m_min")?.optDouble(0)?.takeIf { !it.isNaN() }?.roundToInt()
+        val max = daily?.optJSONArray("temperature_2m_max")?.optDouble(0)?.takeIf { !it.isNaN() }?.roundToInt()
+        fmt(cur.getDouble("temperature_2m").roundToInt(), describe(cur.optInt("weather_code", -1)), min, max)
     } catch (e: Exception) { null }
 
     /** Норвежский метеоинститут (yr.no). */
     private fun metNo(): String? = try {
-        val ts = JSONObject(Http.getText(Config.WEATHER_URL_METNO))
-            .getJSONObject("properties").getJSONArray("timeseries").getJSONObject(0).getJSONObject("data")
+        val arr = JSONObject(Http.getText(Config.WEATHER_URL_METNO))
+            .getJSONObject("properties").getJSONArray("timeseries")
+        val ts = arr.getJSONObject(0).getJSONObject("data")
         val t = ts.getJSONObject("instant").getJSONObject("details").getDouble("air_temperature").roundToInt()
         val sym = ts.optJSONObject("next_1_hours")?.optJSONObject("summary")?.optString("symbol_code") ?: ""
-        fmt(t, describeSymbol(sym))
+        val next24 = (0 until minOf(24, arr.length())).map {
+            arr.getJSONObject(it).getJSONObject("data").getJSONObject("instant").getJSONObject("details").getDouble("air_temperature")
+        }
+        fmt(t, describeSymbol(sym), next24.minOrNull()?.roundToInt(), next24.maxOrNull()?.roundToInt())
     } catch (e: Exception) { null }
 
     private fun wttr(): String? = try {

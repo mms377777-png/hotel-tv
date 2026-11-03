@@ -32,7 +32,7 @@ object Config {
 
     const val WEATHER_URL =
         "https://api.open-meteo.com/v1/forecast?latitude=$CITY_LAT&longitude=$CITY_LON" +
-            "&current=temperature_2m,weather_code&timezone=Asia%2FVladivostok"
+            "&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=Asia%2FVladivostok"
     /** Запасные источники погоды (Open-Meteo из России бывает недоступен). */
     const val WEATHER_URL_METNO =
         "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=$CITY_LAT&lon=$CITY_LON"
