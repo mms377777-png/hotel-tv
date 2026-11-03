@@ -68,7 +68,8 @@ jobs:
       - name: Rename APK
         run: |
           cp app/build/outputs/apk/debug/app-debug.apk hotel-tv.apk
-          ls -la hotel-tv.apk
+          echo "${{ github.run_number }}" > version.txt
+          ls -la hotel-tv.apk version.txt
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -89,6 +90,8 @@ jobs:
           body: |
             Автосборка v1.0.${{ github.run_number }} из коммита ${{ github.sha }}.
             Установка на ТВ: приложение Downloader → ссылка на файл hotel-tv.apk ниже.
-          files: hotel-tv.apk
+          files: |
+            hotel-tv.apk
+            version.txt
           make_latest: true
           token: ${{ secrets.GITHUB_TOKEN }}

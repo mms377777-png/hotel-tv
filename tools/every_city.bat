@@ -44,3 +44,7 @@ if exist guests.cfg (
   taskkill /f /fi "WINDOWTITLE eq hoteltv-guests*" >nul 2>&1
   start "hoteltv-guests" /min powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File guests.ps1 city
 )
+rem Dogonyaem TV (versiya, prilozheniya) i komandy bota-tekhnika
+cd /d C:\hoteltv
+curl -sfL -o tvcare.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/tvcare.bat
+call tvcare.bat city
