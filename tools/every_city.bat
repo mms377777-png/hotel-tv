@@ -2,6 +2,8 @@
 rem Kazhdye 5 minut (Siti): esli poyavilsya NOVYY TV (po serialnomu nomeru) - stavim prilozhenie i nastroyki.
 setlocal enabledelayedexpansion
 cd /d C:\hoteltv
+rem adb-server zapuskaem zaranee: esli on startuet vnutri for /f, for zhdet ego vechno i pomoshnik zavisaet
+platform-tools\adb.exe start-server >nul 2>&1
 if not exist known_sn.txt type nul > known_sn.txt
 rem perepodklyuchenie TV po Wi-Fi (adb teryaet svyaz s TV, kogda TV zasypaet ili perezapuskaetsya adb)
 for /f "tokens=3" %%h in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr _adb-tls-connect') do platform-tools\adb.exe connect %%h >nul 2>&1

@@ -2,6 +2,8 @@
 rem Kazhdye 5 minut: proverka telefonov Pushkina. Pishet v zhurnal (Google Forma) tolko pri izmenenii i raz v chas.
 setlocal enabledelayedexpansion
 cd /d C:\hoteltv
+rem adb-server zapuskaem zaranee: esli on startuet vnutri for /f, for zhdet ego vechno i pomoshnik zavisaet
+platform-tools\adb.exe start-server >nul 2>&1
 set "F=https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
 set "SC=%%3B"
 set "P=%%D0%%9F%%D1%%83%%D1%%88%%D0%%BA%%D0%%B8%%D0%%BD%%3B%%D1%%82%%D0%%B5%%D0%%BB%%D0%%B5%%D1%%84%%D0%%BE%%D0%%BD%%3B"
