@@ -4,6 +4,7 @@ rem 2) vypolnyaem komandy bota-tekhnika iz gruppy administratorov (perezapusk pr
 rem Zapusk: call tvcare.bat <pushkin|city>
 setlocal enabledelayedexpansion
 cd /d C:\hoteltv
+set "APPSDONE="
 set "A=platform-tools\adb.exe"
 set "H=%~1"
 if /i "%H%"=="city" (set "HN=Siti") else (set "HN=Pushkin")
@@ -36,7 +37,8 @@ goto :eof
 :fix
 set "S=%~1" & set "R=%2" & set "V=%3" & set "G=%4" & set "AP=%5"
 if !LV! GTR 0 if !V! GTR 0 if !V! LSS !LV! call :upd
-if "!G!"=="0" if not "!AP!"=="1111" call :apps
+rem prilozheniya dogonyaem ne bolshe chem na odnom TV za zapusk: ustanovka idet minutami, a zapusk dolzhen ukladyvatsya v 5 minut (inache komandy bota zhdut)
+if not defined APPSDONE if "!G!"=="0" if not "!AP!"=="1111" (set "APPSDONE=1" & call :apps)
 goto :eof
 
 :dev
