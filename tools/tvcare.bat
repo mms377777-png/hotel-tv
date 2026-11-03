@@ -41,8 +41,9 @@ set "S=%~1"
 set "INFO="
 for /f "delims=" %%i in ('%A% -s "%S%" shell sh /data/local/tmp/tvinfo.sh 2^>nul') do set "INFO=%%i"
 if not defined INFO goto :eof
-set R=none& set V=0& set G=0& set RT=1& set KP=1& set OK=1
+set R=0& set V=0& set G=0& set RT=1& set KP=1& set OK=1
 for /f "tokens=1-6" %%a in ("!INFO!") do (set "R=%%a"& set "V=%%b"& set "G=%%c"& set "RT=%%d"& set "KP=%%e"& set "OK=%%f")
+if /i "!R!"=="none" set "R=0"
 (echo !R!	!S!	!V!	!G!	!RT!!KP!!OK!)>> tvmap.txt
 goto :eof
 
@@ -80,8 +81,19 @@ set "RES=ok"
 if "%AC%"=="restart_app" (%A% -s "!DS!" shell am force-stop ru.hotelkms.tv & %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1)
 if "%AC%"=="reboot_tv" %A% -s "!DS!" reboot >nul 2>&1
 if "%AC%"=="resend_guest" (del /q guests_state\* >nul 2>&1)
-if "%AC%"=="reinstall_app" (curl -sfL -o hotel-tv.apk https://github.com/mms377777-png/hotel-tv/releases/download/latest/hotel-tv.apk & %A% -s "!DS!" install -r hotel-tv.apk > upd.txt 2>&1 & findstr /c:"Success" upd.txt >nul || set "RES=err" & %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1)
+if "%AC%"=="reinstall_app" call :reinst
 if "%AC%"=="clear_accounts" (curl -sfL -o rmacc.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rmacc.sh & %A% -s "!DS!" push rmacc.sh /data/local/tmp/rmacc.sh >nul 2>&1 & %A% -s "!DS!" shell sh /data/local/tmp/rmacc.sh >nul 2>&1 & %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1)
 :rep
 curl -sL -o nul "%URL%?a=tvr&k=%KEY%&id=%ID%&r=!RES!"
+goto :eof
+
+:reinst
+curl -sfL -o hotel-tv.apk https://github.com/mms377777-png/hotel-tv/releases/download/latest/hotel-tv.apk
+%A% -s "!DS!" install -r hotel-tv.apk > upd.txt 2>&1
+findstr /c:"Success" upd.txt >nul || set "RES=err"
+%A% -s "!DS!" shell pm grant ru.hotelkms.tv android.permission.WRITE_SECURE_SETTINGS >nul 2>&1
+%A% -s "!DS!" shell cmd package set-home-activity ru.hotelkms.tv/.MainActivity >nul 2>&1
+%A% -s "!DS!" shell cmd role add-role-holder --user 0 android.app.role.HOME ru.hotelkms.tv >nul 2>&1
+%A% -s "!DS!" shell pm disable-user --user 0 com.google.android.tvlauncher >nul 2>&1
+%A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
 goto :eof

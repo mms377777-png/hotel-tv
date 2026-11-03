@@ -1,6 +1,14 @@
 @echo off
-rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 23
+rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 24
 cd /d C:\hoteltv
+rem v24: TV resepshena (192.168.0.22) - postavit prilozhenie glavnym ekranom (city.bat, nomer pustoy)
+if exist wifi.cmd call wifi.cmd
+platform-tools\adb.exe connect 192.168.0.22:5555 >nul 2>&1
+curl -sfL -o city.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/city.bat
+call city.bat
+cd /d C:\hoteltv
+curl -s -o nul --data-urlencode "entry.1026545154@install_log.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+goto :eof
 rem v22: novaya sborka (fon - foto naberezhnoy, pogoda s zapasnymi istochnikami) + Okko iz RuStore
 if exist wifi.cmd call wifi.cmd
 curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
