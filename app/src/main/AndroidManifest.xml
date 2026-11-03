@@ -108,5 +108,8 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".GuestReceiver"
+            android:exported="true" />
     </application>
 </manifest>
