@@ -1,5 +1,5 @@
 @echo off
-rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 14
+rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 16
 cd /d C:\hoteltv
 curl -sfL -o city.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/city.bat
 call city.bat
@@ -15,7 +15,7 @@ if exist every.bat (call every.bat) else (curl -sfL -o every.bat https://raw.git
 goto :eof
 rem v12: Kinopoisk cherez RuStore i Rutube
 curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
-call apps.bat Siti
+rem call apps.bat Siti (uzhe sdelano)
 cd /d C:\hoteltv
 rem v14: svodka po TV dlya tablitsy
 curl -sfL -o info.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/info.bat

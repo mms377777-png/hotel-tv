@@ -16,7 +16,7 @@ data class AppTile(
 object Config {
     const val DEFAULT_HOTEL_NAME = "Сити Центр"
     const val DEFAULT_GUEST_NAME = ""
-    const val DEFAULT_PIN = "0000"
+    const val DEFAULT_PIN = "2288"
 
     /** Адрес для отчётов (Google Apps Script). Пусто — отчёты только пишутся в журнал (logcat). */
     const val DEFAULT_REPORT_URL = ""
