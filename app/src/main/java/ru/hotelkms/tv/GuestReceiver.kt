@@ -38,9 +38,12 @@ class GuestReceiver : BroadcastReceiver() {
         resultData = if (old.isNotEmpty() && old != name) "OUT" else "OK"
     }
 
-    private fun decode(b64: String?): String? = try {
-        String(Base64.decode(b64 ?: return null, Base64.DEFAULT), Charsets.UTF_8)
-    } catch (e: Exception) { null }
+    private fun decode(b64: String?): String? {
+        if (b64 == null) return null
+        return try {
+            String(Base64.decode(b64, Base64.DEFAULT), Charsets.UTF_8)
+        } catch (e: Exception) { null }
+    }
 
     /** «№ 305», «305 », «0305» → «305»; нецифровые названия сравниваем как есть без регистра. */
     private fun norm(s: String): String {
