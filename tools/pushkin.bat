@@ -7,6 +7,12 @@ echo ==== %date% %time% ==== > %LOG%
 curl -sL -o hotel-tv.apk https://github.com/mms377777-png/hotel-tv/releases/download/latest/hotel-tv.apk
 for %%A in (hotel-tv.apk) do echo APK size %%~zA >> %LOG%
 for %%i in (108 109 110 111 112) do %ADB% connect 192.168.1.%%i:5555 >nul 2>&1
+setlocal enabledelayedexpansion
+for /f "delims=" %%L in ('%ADB% mdns services 2^>nul ^| findstr _adb-tls-connect') do (
+  for %%h in (%%L) do set "HP=%%h"
+  %ADB% connect !HP! >nul 2>&1
+)
+endlocal
 %ADB% devices >> %LOG%
 for /f "skip=1 tokens=1,2" %%a in ('%ADB% devices') do if "%%b"=="device" call :one %%a
 echo ==== DONE ==== >> %LOG%
@@ -20,11 +26,20 @@ set IPM=
 for /f "tokens=4" %%i in ('%ADB% -s %S% shell ip -4 -o addr show wlan0') do set IPM=%%i
 for /f "delims=/" %%j in ("%IPM%") do set IP=%%j
 set ROOM=
+set SN=
+for /f %%s in ('%ADB% -s %S% shell getprop ro.serialno') do set SN=%%s
+rem nomer po serijnomu (rooms_sn.txt: "SERIAL NOMER"), IP mozhet menyatsya
+if exist rooms_sn.txt for /f "tokens=1,2" %%a in (rooms_sn.txt) do if "%%a"=="%SN%" set ROOM=%%b
+if defined ROOM goto :room
 if "%IP%"=="192.168.1.108" set ROOM=317
 if "%IP%"=="192.168.1.109" set ROOM=302
 if "%IP%"=="192.168.1.110" set ROOM=305
 if "%IP%"=="192.168.1.111" set ROOM=306
 if "%IP%"=="192.168.1.112" set ROOM=307
+if "%SN:~0,3%"=="G95" goto :room0
+set ROOM=
+:room0
+:room
 if not defined ROOM (echo SKIP %S% ip=%IP% >> %LOG%& goto :eof)
 if defined DONE_%ROOM% (echo DUP %S% room %ROOM% >> %LOG%& goto :eof)
 set DONE_%ROOM%=1

@@ -1,14 +1,26 @@
 @echo off
-rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 20
+rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 21
 cd /d C:\hoteltv
-rem v20: sopryazhenie TV 304 (DEXP, gostevoy Wi-Fi 10.22.x) po kodu s ekrana
-(echo Pushkin;sopryazhenie;304;& ping -n 2 -w 1500 10.22.103.38 ^| find "TTL=" ^|^| echo net-pinga)> pair.txt
-platform-tools\adb.exe pair 10.22.103.38:34393 450582 >> pair.txt 2>&1
-platform-tools\adb.exe mdns services >> pair.txt 2>&1
-for /f "delims=" %%L in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr 10.22.103.38') do (for %%h in (%%L) do set "HP=%%h")
-if defined HP (platform-tools\adb.exe connect %HP% >> pair.txt 2>&1 & platform-tools\adb.exe -s %HP% tcpip 5555 >> pair.txt 2>&1 & timeout /t 5 /nobreak >nul & platform-tools\adb.exe connect 10.22.103.38:5555 >> pair.txt 2>&1)
-platform-tools\adb.exe devices >> pair.txt 2>&1
+rem v21: TV 304 (DEXP) pereklyuchen na Pushkin_TV: sopryazhenie po kodu, nomer po serijnomu, ustanovka
+(echo Pushkin;sopryazhenie;304)> pair.txt
+platform-tools\adb.exe pair 192.168.1.112:34305 351704 >> pair.txt 2>&1
+timeout /t 3 /nobreak >nul
+set "HP="
+for /f "delims=" %%L in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr 192.168.1.112') do (for %%h in (%%L) do set "HP=%%h")
+if defined HP platform-tools\adb.exe connect %HP% >> pair.txt 2>&1
+set "SN4="
+if defined HP for /f %%s in ('platform-tools\adb.exe -s %HP% shell getprop ro.serialno') do set SN4=%%s
+(echo serial=%SN4% hp=%HP%)>> pair.txt
+if defined SN4 (findstr /b "%SN4%" rooms_sn.txt >nul 2>&1 || (echo %SN4% 304)>> rooms_sn.txt)
 curl -s -o nul --data-urlencode "entry.1026545154@pair.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+if not defined SN4 goto :eof
+if exist wifi.cmd call wifi.cmd
+curl -sfL -o pushkin.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pushkin.bat
+call pushkin.bat > inst304.txt 2>&1
+cd /d C:\hoteltv
+curl -s -o nul --data-urlencode "entry.1026545154@install_log.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
+call apps.bat Pushkin
 goto :eof
 curl -sfL -o pushkin.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pushkin.bat
 call pushkin.bat
