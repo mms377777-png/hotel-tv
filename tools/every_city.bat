@@ -8,6 +8,11 @@ for /f "tokens=3" %%h in ('platform-tools\adb.exe mdns services 2^>nul ^| findst
 set N=0
 for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" set /a N+=1
 if !N!==0 (platform-tools\adb.exe kill-server >nul 2>&1 & platform-tools\adb.exe start-server >nul 2>&1 & timeout /t 8 /nobreak >nul & for /f "tokens=3" %%h in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr _adb-tls-connect') do platform-tools\adb.exe connect %%h >nul 2>&1)
+set N2=0
+for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" set /a N2+=1
+set "LN="
+if exist tv_count.txt set /p LN=<tv_count.txt
+if not "!N2!"=="!LN!" (curl -s -o nul -d "entry.1026545154=%%D0%%A1%%D0%%B8%%D1%%82%%D0%%B8%%3B%%D1%%81%%D1%%82%%D0%%BE%%D0%%B9%%D0%%BA%%D0%%B0%%3B%%D0%%A2%%D0%%92%%20%%D0%%BD%%D0%%B0%%20%%D1%%81%%D0%%B2%%D1%%8F%%D0%%B7%%D0%%B8%%3B!N2!" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse" & (echo !N2!)>tv_count.txt)
 set NEW=
 for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" (
   set SN=
