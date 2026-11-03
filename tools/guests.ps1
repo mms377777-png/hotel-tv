@@ -34,7 +34,7 @@ foreach ($d in $devs) {
   $out = (& $adb -s $d shell am broadcast -n ru.hotelkms.tv/.GuestReceiver --es map $b64) -join ' '
   if ($out -notmatch 'data="(\w+)"') { continue }   # na TV staraya versiya prilozheniya - poprobuem v sleduyushchiy raz
   Set-Content $st $sig
-  if ($Matches[1] -ne 'OUT') { continue }
+  if ($Matches[1] -ne 'OUT') { if ($Matches[1] -eq 'OK') { Log ("{0};гости из 1С;{1};список получен ТВ" -f $hotel, $d) }; continue }
   # vyezd / smena gostya: sbrosit dannye storonnih prilozheniy (vhody v kinoteatry) i udalit uchetki Google/Yandeks
   $pk = & $adb -s $d shell pm list packages -3 | ForEach-Object { $_ -replace '^package:', '' } |
         Where-Object { $_ -and $_ -notmatch '^(ru\.hotelkms\.tv|ru\.vk\.store.*|ru\.rustore.*)$' }
