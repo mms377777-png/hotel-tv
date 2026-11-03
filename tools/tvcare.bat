@@ -16,15 +16,23 @@ if exist apkver_have.txt set /p HV=<apkver_have.txt
 type nul > tvmap.txt
 for /f "skip=1 tokens=1,2 delims=	" %%a in ('%A% devices') do if "%%b"=="device" call :dev "%%a"
 rem --- komandy bota ---
-if not exist guests.cfg goto :eof
+if not exist guests.cfg goto :catchup
 set "URL=" & set "KEY="
 for /f "usebackq tokens=1,* delims==" %%a in ("guests.cfg") do (
   if "%%a"=="url" set "URL=%%b"
   if "%%a"=="key" set "KEY=%%b"
 )
-if not defined KEY goto :eof
+if not defined KEY goto :catchup
 curl -sL -o tvq.txt "%URL%?a=tvq&h=%H%&k=%KEY%"
 for /f "usebackq tokens=1-3 delims=|" %%a in ("tvq.txt") do call :cmd %%a %%b %%c
+:catchup
+for /f "usebackq tokens=1-5 delims=	" %%a in ("tvmap.txt") do call :fix "%%b" %%a %%c %%d %%e
+goto :eof
+
+:fix
+set "S=%~1" & set "R=%2" & set "V=%3" & set "G=%4" & set "AP=%5"
+if !LV! GTR 0 if !V! GTR 0 if !V! LSS !LV! call :upd
+if "!G!"=="0" if not "!AP!"=="111" call :apps
 goto :eof
 
 :dev
@@ -35,9 +43,7 @@ for /f "delims=" %%i in ('%A% -s "%S%" shell sh /data/local/tmp/tvinfo.sh 2^>nul
 if not defined INFO goto :eof
 set R=none& set V=0& set G=0& set RT=1& set KP=1& set OK=1
 for /f "tokens=1-6" %%a in ("!INFO!") do (set "R=%%a"& set "V=%%b"& set "G=%%c"& set "RT=%%d"& set "KP=%%e"& set "OK=%%f")
-(echo !R!	!S!)>> tvmap.txt
-if !LV! GTR 0 if !V! GTR 0 if !V! LSS !LV! call :upd
-if "!G!"=="0" if not "!RT!!KP!!OK!"=="111" call :apps
+(echo !R!	!S!	!V!	!G!	!RT!!KP!!OK!)>> tvmap.txt
 goto :eof
 
 :upd
