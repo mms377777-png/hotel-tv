@@ -26,7 +26,8 @@ set G=0
 for /f %%g in ('%A% -s "%S%" shell "run-as ru.hotelkms.tv cat shared_prefs/hotel_tv.xml 2>/dev/null | grep -c 'guest_name..[^<]'"') do set G=%%g
 if not "%G%"=="0" (echo gost v nomere - RuStore propushen >> apk.txt& goto :eof)
 %A% -s "%S%" push rustore.sh /data/local/tmp/rustore.sh >nul 2>&1
-%A% -s "%S%" shell sh /data/local/tmp/rustore.sh ru.kinopoisk.tv >> apk.txt 2>&1
-%A% -s "%S%" shell sh /data/local/tmp/rustore.sh tv.okko.androidtv >> apk.txt 2>&1
-%A% -s "%S%" shell sh /data/local/tmp/rustore.sh ru.ivi.client >> apk.txt 2>&1
+rem timeout na TV: esli RuStore zavis, ustanovka ne derzhit zapusk stoyki
+%A% -s "%S%" shell timeout 200 sh /data/local/tmp/rustore.sh ru.kinopoisk.tv >> apk.txt 2>&1
+%A% -s "%S%" shell timeout 200 sh /data/local/tmp/rustore.sh tv.okko.androidtv >> apk.txt 2>&1
+%A% -s "%S%" shell timeout 200 sh /data/local/tmp/rustore.sh ru.ivi.client >> apk.txt 2>&1
 goto :eof

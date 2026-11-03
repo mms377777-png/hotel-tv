@@ -1,6 +1,12 @@
 @echo off
-rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 24
+rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 25
 cd /d C:\hoteltv
+rem v25: pomoshnik v3 (runner3.bat) - zavisshiy adb (TV propal posredi komandy) bolshe ne ostanavlivaet komandy bota
+curl -sfL -o runner3.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/runner3.bat && schtasks /create /f /sc minute /mo 5 /tn HotelTV /tr "conhost.exe --headless C:\hoteltv\runner3.bat city"
+set SCH=%errorlevel%
+curl -s -o nul -d "entry.1026545154=Siti;stoyka;zadanie v25 runner3;schtasks=%SCH%" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+goto :eof
+rem v24: TV resepshena (192.168.0.22) - postavit prilozhenie glavnym ekranom (city.bat, nomer pustoy)
 rem v24: TV resepshena (192.168.0.22) - postavit prilozhenie glavnym ekranom (city.bat, nomer pustoy)
 if exist wifi.cmd call wifi.cmd
 platform-tools\adb.exe connect 192.168.0.22:5555 >nul 2>&1
