@@ -1,6 +1,21 @@
 @echo off
-rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 25
+rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 26
 cd /d C:\hoteltv
+rem v26: razovo ochistit TV nomera 8 posle vyezda gostya (ostalsya vhod v Kinopoisk/Yandeks); dalshe eto delaet bot sam (avtoochistka po 1S)
+set "A=platform-tools\adb.exe"
+set "DS="
+for /f "usebackq tokens=1,2 delims=	" %%a in ("tvmap.txt") do if "%%a"=="8" if not defined DS set "DS=%%b"
+if not defined DS (echo v26: nomer 8 ne na svyazi & goto :eof)
+for /f "tokens=2 delims=:" %%p in ('%A% -s "%DS%" shell pm list packages -3 2^>nul') do (
+  echo %%p| findstr /r /c:"^ru\.hotelkms\.tv" /c:"^ru\.vk\.store" /c:"^ru\.rustore" >nul || %A% -s "%DS%" shell pm clear %%p
+)
+curl -sfL -o rmacc.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rmacc.sh
+%A% -s "%DS%" push rmacc.sh /data/local/tmp/rmacc.sh >nul 2>&1
+%A% -s "%DS%" shell timeout 120 sh /data/local/tmp/rmacc.sh
+%A% -s "%DS%" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
+curl -s -o nul -d "entry.1026545154=Siti;stoyka;zadanie v26;ochistka TV 8" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+goto :eof
+rem v25: pomoshnik v3 (runner3.bat) - uzhe vypolneno
 rem v25: pomoshnik v3 (runner3.bat) - zavisshiy adb (TV propal posredi komandy) bolshe ne ostanavlivaet komandy bota
 curl -sfL -o runner3.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/runner3.bat && schtasks /create /f /sc minute /mo 5 /tn HotelTV /tr "conhost.exe --headless C:\hoteltv\runner3.bat city"
 set SCH=%errorlevel%
