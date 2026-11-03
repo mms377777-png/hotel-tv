@@ -23,8 +23,12 @@ for /f "usebackq tokens=1,* delims==" %%a in ("guests.cfg") do (
   if "%%a"=="key" set "KEY=%%b"
 )
 if not defined KEY goto :catchup
-curl -sL -o tvq.txt "%URL%?a=tvq&h=%H%&k=%KEY%"
-for /f "usebackq tokens=1-3 delims=|" %%a in ("tvq.txt") do call :cmd %%a %%b %%c
+rem 9.bat zapisal klyuch s probelom v kontse - ubiraem probely, inache curl ne otpravlyaet zapros ("Malformed input")
+set "KEY=!KEY: =!"
+rem staryy spisok udalyaem: pri pustom otvete curl fayl ne perezapisyvaet i komandy vypolnilis by snova
+if exist tvq.txt del tvq.txt
+curl -sL -G -o tvq.txt "%URL%" --data-urlencode "a=tvq" --data-urlencode "h=%H%" --data-urlencode "k=!KEY!"
+if exist tvq.txt for /f "usebackq tokens=1-3 delims=|" %%a in ("tvq.txt") do call :cmd %%a %%b %%c
 :catchup
 for /f "usebackq tokens=1-5 delims=	" %%a in ("tvmap.txt") do call :fix "%%b" %%a %%c %%d %%e
 goto :eof
@@ -32,7 +36,7 @@ goto :eof
 :fix
 set "S=%~1" & set "R=%2" & set "V=%3" & set "G=%4" & set "AP=%5"
 if !LV! GTR 0 if !V! GTR 0 if !V! LSS !LV! call :upd
-if "!G!"=="0" if not "!AP!"=="111" call :apps
+if "!G!"=="0" if not "!AP!"=="1111" call :apps
 goto :eof
 
 :dev
@@ -41,10 +45,10 @@ set "S=%~1"
 set "INFO="
 for /f "delims=" %%i in ('%A% -s "%S%" shell sh /data/local/tmp/tvinfo.sh 2^>nul') do set "INFO=%%i"
 if not defined INFO goto :eof
-set R=0& set V=0& set G=0& set RT=1& set KP=1& set OK=1
-for /f "tokens=1-6" %%a in ("!INFO!") do (set "R=%%a"& set "V=%%b"& set "G=%%c"& set "RT=%%d"& set "KP=%%e"& set "OK=%%f")
+set R=0& set V=0& set G=0& set RT=1& set KP=1& set OK=1& set IV=1
+for /f "tokens=1-7" %%a in ("!INFO!") do (set "R=%%a"& set "V=%%b"& set "G=%%c"& set "RT=%%d"& set "KP=%%e"& set "OK=%%f"& if not "%%g"=="" set "IV=%%g")
 if /i "!R!"=="none" set "R=0"
-(echo !R!	!S!	!V!	!G!	!RT!!KP!!OK!)>> tvmap.txt
+(echo !R!	!S!	!V!	!G!	!RT!!KP!!OK!!IV!)>> tvmap.txt
 goto :eof
 
 :upd
@@ -82,9 +86,27 @@ if "%AC%"=="restart_app" (%A% -s "!DS!" shell am force-stop ru.hotelkms.tv & %A%
 if "%AC%"=="reboot_tv" %A% -s "!DS!" reboot >nul 2>&1
 if "%AC%"=="resend_guest" (del /q guests_state\* >nul 2>&1)
 if "%AC%"=="reinstall_app" call :reinst
+if "%AC%"=="install_ivi" call :ivi
+if "%AC%"=="fix_ivi" call :fixivi
 if "%AC%"=="clear_accounts" (curl -sfL -o rmacc.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rmacc.sh & %A% -s "!DS!" push rmacc.sh /data/local/tmp/rmacc.sh >nul 2>&1 & %A% -s "!DS!" shell sh /data/local/tmp/rmacc.sh >nul 2>&1 & %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1)
 :rep
-curl -sL -o nul "%URL%?a=tvr&k=%KEY%&id=%ID%&r=!RES!"
+curl -sL -G -o nul "%URL%" --data-urlencode "a=tvr" --data-urlencode "k=!KEY!" --data-urlencode "id=%ID%" --data-urlencode "r=!RES!"
+goto :eof
+
+:ivi
+rem ivi iz RuStore po zaprosu administratora - stavim i pri goste (gost sam prosit)
+curl -sfL -o rustore.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rustore.sh
+%A% -s "!DS!" push rustore.sh /data/local/tmp/rustore.sh >nul 2>&1
+%A% -s "!DS!" shell sh /data/local/tmp/rustore.sh ru.ivi.client > ivi.txt 2>&1
+findstr /c:"NE USTANOVLEN" ivi.txt >nul && set "RES=err"
+%A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
+goto :eof
+
+:fixivi
+rem ivi pishet "Chto-to poshlo ne tak": sbrosit dannye ivi i zapustit zanovo; esli ivi net - RES=noivi
+%A% -s "!DS!" shell pm clear ru.ivi.client > ivi.txt 2>&1
+findstr /c:"Success" ivi.txt >nul || (set "RES=noivi" & goto :eof)
+%A% -s "!DS!" shell monkey -p ru.ivi.client -c android.intent.category.LEANBACK_LAUNCHER 1 >nul 2>&1
 goto :eof
 
 :reinst
