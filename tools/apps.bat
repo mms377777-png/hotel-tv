@@ -1,5 +1,5 @@
 @echo off
-rem Kinopoisk (cherez RuStore) i Rutube (pryamaya ssylka) na vse TV. Zapusk: call apps.bat <Pushkin|Siti>
+rem Kinopoisk i Okko (cherez RuStore) i Rutube (pryamaya ssylka) na vse TV. Zapusk: call apps.bat <Pushkin|Siti>
 cd /d C:\hoteltv
 set A=platform-tools\adb.exe
 curl -sfL -o RuStoreTV.apk https://static.rustore.ru/release/RuStoreTV.apk
@@ -23,4 +23,5 @@ echo [%S%] >> apk.txt
 for /f %%p in ('%A% -s %S% shell "pm list packages | grep -i -e vk.store -e rustore | cut -d: -f2"') do %A% -s %S% shell appops set %%p REQUEST_INSTALL_PACKAGES allow
 %A% -s %S% push rustore.sh /data/local/tmp/rustore.sh >nul 2>&1
 %A% -s %S% shell sh /data/local/tmp/rustore.sh ru.kinopoisk.tv >> apk.txt 2>&1
+%A% -s %S% shell sh /data/local/tmp/rustore.sh tv.okko.androidtv >> apk.txt 2>&1
 goto :eof

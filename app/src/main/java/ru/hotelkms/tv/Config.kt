@@ -33,6 +33,12 @@ object Config {
     const val WEATHER_URL =
         "https://api.open-meteo.com/v1/forecast?latitude=$CITY_LAT&longitude=$CITY_LON" +
             "&current=temperature_2m,weather_code&timezone=Asia%2FVladivostok"
+    /** Запасные источники погоды (Open-Meteo из России бывает недоступен). */
+    const val WEATHER_URL_METNO =
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=$CITY_LAT&lon=$CITY_LON"
+    const val WEATHER_URL_WTTR = "https://wttr.in/$CITY_LAT,$CITY_LON?format=j1"
+    /** Фон главного экрана — фото с сайта гостиницы (набережная Амура). */
+    const val BACKDROP_URL = "https://hotelkms.ru/city-f1dcc7524ff6.webp"
     const val WEATHER_REFRESH_MS = 30L * 60 * 1000
 
     // Проверка скорости

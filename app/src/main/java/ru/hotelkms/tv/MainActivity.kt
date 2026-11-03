@@ -70,6 +70,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         prefs = Prefs(this)
+        Backdrop.apply(this)
 
         clock = findViewById(R.id.clock)
         date = findViewById(R.id.date)
