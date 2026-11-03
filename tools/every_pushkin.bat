@@ -10,8 +10,12 @@ set "OFF=%%D0%%BD%%D0%%B5%%D1%%82%%20%%D1%%81%%D0%%B2%%D1%%8F%%D0%%B7%%D0%%B8"
 set "T=%time: =0%"
 set /a MIN=1%T:~3,2%-100
 set HB=0
-if %MIN% LSS 5 set HB=1
+set "HR=%date%_%T:~0,2%"
+set "LHR="
+if exist state\hour.txt set /p LHR=<state\hour.txt
+if %MIN% LSS 5 if not "%HR%"=="%LHR%" set HB=1
 if not exist state mkdir state
+if "%HB%"=="1" (echo %HR%)>state\hour.txt
 for %%i in (122 200 201 202 203 204 205 206 208 209 210 211 212 213 214 215 216) do (
   set "S=DN"
   ping -n 3 -w 1500 192.168.1.%%i | find "TTL=" >nul && set "S=UP"
