@@ -1,6 +1,15 @@
 @echo off
-rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 19
+rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 20
 cd /d C:\hoteltv
+rem v20: sopryazhenie TV 304 (DEXP, gostevoy Wi-Fi 10.22.x) po kodu s ekrana
+(echo Pushkin;sopryazhenie;304;& ping -n 2 -w 1500 10.22.103.38 ^| find "TTL=" ^|^| echo net-pinga)> pair.txt
+platform-tools\adb.exe pair 10.22.103.38:34393 450582 >> pair.txt 2>&1
+platform-tools\adb.exe mdns services >> pair.txt 2>&1
+for /f "delims=" %%L in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr 10.22.103.38') do (for %%h in (%%L) do set "HP=%%h")
+if defined HP (platform-tools\adb.exe connect %HP% >> pair.txt 2>&1 & platform-tools\adb.exe -s %HP% tcpip 5555 >> pair.txt 2>&1 & timeout /t 5 /nobreak >nul & platform-tools\adb.exe connect 10.22.103.38:5555 >> pair.txt 2>&1)
+platform-tools\adb.exe devices >> pair.txt 2>&1
+curl -s -o nul --data-urlencode "entry.1026545154@pair.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+goto :eof
 curl -sfL -o pushkin.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pushkin.bat
 call pushkin.bat
 rem v18: pomoshnik dlya vvoda klyucha gostey na stoyke (tolko cifry): v cmd nabrat "9 <klyuch>"
