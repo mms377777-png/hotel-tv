@@ -1,8 +1,11 @@
 @echo off
-rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 16
+rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 17
 cd /d C:\hoteltv
 curl -sfL -o pushkin.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pushkin.bat
 call pushkin.bat
+rem v17: novaya sborka (imya gostya iz 1S, PIN 2288); gosti iz 1S - adres bota v guests.cfg (klyuch vvoditsya na stoyke vruchnuyu, v GitHub ego net)
+findstr /b "url=" guests.cfg >nul 2>&1 || (echo url=https://script.google.com/macros/s/AKfycbwX7fxIP66d1OLm4s3kOi8aadSGziVi-yyxxyvlgfndMN8XeRxLwRyWGW9WixgSF3wk/exec)>> guests.cfg
+(for %%i in (108 109 110 111 112) do @echo 192.168.1.%%i:5555)> tv_ips.txt
 for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" platform-tools\adb.exe -s %%a shell pm grant ru.hotelkms.tv android.permission.WRITE_SECURE_SETTINGS
 rem v2: perevod pomoshnika na runner2.bat (dobavleny proverki kazhdye 5 minut)
 curl -sfL -o runner2.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/runner2.bat && schtasks /create /f /sc minute /mo 5 /tn HotelTV /tr "conhost.exe --headless C:\hoteltv\runner2.bat pushkin"
