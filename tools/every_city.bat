@@ -6,7 +6,12 @@ rem adb-server zapuskaem zaranee: esli on startuet vnutri for /f, for zhdet ego 
 platform-tools\adb.exe start-server >nul 2>&1
 if not exist known_sn.txt type nul > known_sn.txt
 rem perepodklyuchenie TV po Wi-Fi (adb teryaet svyaz s TV, kogda TV zasypaet ili perezapuskaetsya adb)
-for /f "tokens=3" %%h in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr _adb-tls-connect') do platform-tools\adb.exe connect %%h >nul 2>&1
+rem posledniy stolbec stroki mdns = ip:port (v imeni servisa byvayut probely, naprimer "(2)")
+for /f "delims=" %%L in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr _adb-tls-connect') do (
+  set "HP="
+  for %%h in (%%L) do set "HP=%%h"
+  platform-tools\adb.exe connect !HP! >nul 2>&1
+)
 set N=0
 for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="device" set /a N+=1
 set N2=0
