@@ -34,5 +34,7 @@ cd /d C:\hoteltv
 if exist guests.cfg (
   curl -sfL -o guests.ps1 https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/guests.ps1
   if not exist rmacc.sh curl -sfL -o rmacc.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rmacc.sh
-  powershell -NoProfile -ExecutionPolicy Bypass -File guests.ps1 city
+  rem PowerShell na stoyke mozhet zavisat - zapuskaem bez ozhidaniya, zavisshiy ubivaem v sleduyushchiy raz
+  taskkill /f /fi "WINDOWTITLE eq hoteltv-guests*" >nul 2>&1
+  start "hoteltv-guests" /min powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File guests.ps1 city
 )
