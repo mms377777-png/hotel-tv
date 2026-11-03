@@ -88,6 +88,7 @@ if "%AC%"=="resend_guest" (del /q guests_state\* >nul 2>&1)
 if "%AC%"=="reinstall_app" call :reinst
 if "%AC%"=="install_ivi" call :ivi
 if "%AC%"=="fix_ivi" call :fixivi
+if "%AC%"=="clear_accounts" call :clearapps
 if "%AC%"=="clear_accounts" (curl -sfL -o rmacc.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rmacc.sh & %A% -s "!DS!" push rmacc.sh /data/local/tmp/rmacc.sh >nul 2>&1 & %A% -s "!DS!" shell sh /data/local/tmp/rmacc.sh >nul 2>&1 & %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1)
 :rep
 curl -sL -G -o nul "%URL%" --data-urlencode "a=tvr" --data-urlencode "k=!KEY!" --data-urlencode "id=%ID%" --data-urlencode "r=!RES!"
@@ -100,6 +101,13 @@ curl -sfL -o rustore.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv
 %A% -s "!DS!" shell sh /data/local/tmp/rustore.sh ru.ivi.client > ivi.txt 2>&1
 findstr /c:"NE USTANOVLEN" ivi.txt >nul && set "RES=err"
 %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
+goto :eof
+
+:clearapps
+rem kak pri vyezde v guests.ps1: sbrosit dannye storonnih prilozheniy (vhody v Kinopoisk, Okko, ivi...), krome nashego i RuStore
+for /f "tokens=2 delims=:" %%p in ('%A% -s "!DS!" shell pm list packages -3 2^>nul') do (
+  echo %%p| findstr /r /c:"^ru\.hotelkms\.tv" /c:"^ru\.vk\.store" /c:"^ru\.rustore" >nul || %A% -s "!DS!" shell pm clear %%p >nul 2>&1
+)
 goto :eof
 
 :fixivi
