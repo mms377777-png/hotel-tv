@@ -1,8 +1,9 @@
-# Gosti iz 1S:Otel -> imya na TV; pri vyezde/smene gostya - ochistka TV ot uchetok prezhnego gostya.
+﻿# Gosti iz 1S:Otel -> imya na TV; pri vyezde/smene gostya - ochistka TV ot uchetok prezhnego gostya.
 # Zapusk iz every_<x>.bat: powershell -NoProfile -ExecutionPolicy Bypass -File guests.ps1 <pushkin|city>
 # Nastroyki tolko lokalno: C:\hoteltv\guests.cfg (2 stroki: url=<adres bota /exec>, key=<klyuch GUESTS_KEY>) - v GitHub ne klast.
 param([string]$h)
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Set-Location C:\hoteltv
 if (-not (Test-Path guests.cfg)) { exit }
 $cfg = @{}; Get-Content guests.cfg | ForEach-Object { $k, $v = $_ -split '=', 2; if ($v) { $cfg[$k.Trim()] = $v.Trim() } }
@@ -10,7 +11,7 @@ if (-not $cfg.url -or -not $cfg.key) { exit }
 $adb = 'C:\hoteltv\platform-tools\adb.exe'
 $form = 'https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse'
 $hotel = @{ pushkin = 'Пушкин'; city = 'Сити' }[$h]
-function Log($line) { try { Invoke-WebRequest -UseBasicParsing -Method Post -Uri $form -Body @{ 'entry.1026545154' = $line } | Out-Null } catch {} }
+function Log($line) { try { $b = [Text.Encoding]::ASCII.GetBytes('entry.1026545154=' + [uri]::EscapeDataString($line)); Invoke-WebRequest -UseBasicParsing -Method Post -Uri $form -ContentType 'application/x-www-form-urlencoded' -Body $b | Out-Null } catch {} }
 
 try { $r = Invoke-RestMethod -UseBasicParsing -TimeoutSec 60 -Uri ("{0}?a=guests&h={1}&k={2}" -f $cfg.url, $h, [uri]::EscapeDataString($cfg.key)) } catch { exit }
 if ($r.error) { exit }
