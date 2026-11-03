@@ -1,10 +1,11 @@
 @echo off
-rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 20
+rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 21
 cd /d C:\hoteltv
-rem v20: sopryazhenie TV resepshena Siti (kod s ekrana TV)
-platform-tools\adb.exe pair 192.168.0.22:35217 754609 > pair.txt 2>&1
-for /f "tokens=3" %%h in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr _adb-tls-connect') do platform-tools\adb.exe connect %%h >> pair.txt 2>&1
-curl -s -o nul --data-urlencode "entry.1026545154@pair.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+rem v21: svodka po podklyuchennym TV
+curl -sfL -o info.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/info.bat
+call info.bat Siti
+cd /d C:\hoteltv
+goto :eof
 curl -sfL -o city.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/city.bat
 call city.bat
 rem v18: pomoshnik dlya vvoda klyucha gostey na stoyke (tolko cifry): v cmd nabrat "9 <klyuch>"
