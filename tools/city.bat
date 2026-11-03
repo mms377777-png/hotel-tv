@@ -32,15 +32,18 @@ if "%IP%"=="192.168.0.23" set ROOM=11
 if "%IP%"=="192.168.0.248" set ROOM=12
 if "%IP%"=="192.168.0.58" set ROOM=13
 if "%IP%"=="192.168.0.2" set ROOM=14
+if "%IP%"=="192.168.0.22" set ROOM=REC
 if not defined ROOM (echo SKIP %S% ip=%IP% >> %LOG%& goto :eof)
 if defined DONE_%ROOM% (echo DUP %S% room %ROOM% >> %LOG%& goto :eof)
 set DONE_%ROOM%=1
+set "ROOMV=%ROOM%"
+if "%ROOM%"=="REC" set "ROOMV="
 echo ---- ROOM %ROOM% %S% %IP% >> %LOG%
 %ADB% -s %S% install -r hotel-tv.apk >> %LOG% 2>&1
 %ADB% -s %S% shell pm uninstall --user 0 mobi.zona >> %LOG% 2>&1
 %ADB% -s %S% shell am force-stop ru.hotelkms.tv
 > hp.xml echo ^<?xml version='1.0' encoding='utf-8' standalone='yes' ?^>
->> hp.xml echo ^<map^>^<string name="room"^>%ROOM%^</string^>^<string name="wifi_ssid"^>%WSSID%^</string^>^<string name="wifi_pass"^>%WPASS%^</string^>^</map^>
+>> hp.xml echo ^<map^>^<string name="room"^>%ROOMV%^</string^>^<string name="wifi_ssid"^>%WSSID%^</string^>^<string name="wifi_pass"^>%WPASS%^</string^>^</map^>
 %ADB% -s %S% push hp.xml /data/local/tmp/hp.xml >nul 2>&1
 %ADB% -s %S% shell "run-as ru.hotelkms.tv sh -c 'mkdir -p shared_prefs; cp /data/local/tmp/hp.xml shared_prefs/hotel_tv.xml'" >> %LOG% 2>&1
 %ADB% -s %S% shell rm /data/local/tmp/hp.xml
