@@ -30,6 +30,8 @@ rem staryy spisok udalyaem: pri pustom otvete curl fayl ne perezapisyvaet i koma
 if exist tvq.txt del tvq.txt
 curl -sL -G -o tvq.txt "%URL%" --data-urlencode "a=tvq" --data-urlencode "h=%H%" --data-urlencode "k=!KEY!"
 if exist tvq.txt for /f "usebackq tokens=1-3 delims=|" %%a in ("tvq.txt") do call :cmd %%a %%b %%c
+rem imena gostey na TV bez PowerShell (na stoyke Siti PowerShell zavisaet): bot otdaet gotovuyu stroku base64 dlya GuestReceiver
+if /i "%H%"=="city" call :guestsync
 :catchup
 for /f "usebackq tokens=1-5 delims=	" %%a in ("tvmap.txt") do call :fix "%%b" %%a %%c %%d %%e
 goto :eof
@@ -104,6 +106,33 @@ curl -sfL -o rustore.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv
 rem uspekh - tolko esli rustore.sh napisal "OK" ili "uzhe est" (pustoy otvet = TV propal ili ustanovka oborvalas)
 findstr /c:"ru.ivi.client OK" /c:"ru.ivi.client uzhe est" ivi.txt >nul || set "RES=err"
 %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
+goto :eof
+
+:guestsync
+if exist gb64.txt del gb64.txt
+curl -sL -G -o gb64.txt "%URL%" --data-urlencode "a=guests" --data-urlencode "f=b64" --data-urlencode "h=%H%" --data-urlencode "k=!KEY!"
+if not exist gb64.txt goto :eof
+set "GB="
+set /p GB=<gb64.txt
+if not defined GB goto :eof
+if not exist guests_state md guests_state
+for /f "usebackq tokens=2 delims=	" %%s in ("tvmap.txt") do call :gsend "%%s"
+goto :eof
+
+:gsend
+set "S=%~1"
+set "M=!S::=_!"
+set "M=!M:.=_!"
+set "M=!M: =_!"
+set "M=!M:(=_!"
+set "M=!M:)=_!"
+set "OLD="
+if exist "guests_state\!M!.b64" set /p OLD=<"guests_state\!M!.b64"
+rem tot zhe spisok uzhe otpravlen na etot TV - ne dergaem TV kazhdye 5 minut
+if "!OLD!"=="!GB!" goto :eof
+%A% -s "%S%" shell am broadcast -n ru.hotelkms.tv/.GuestReceiver --es map !GB! > gr.txt 2>&1
+rem otvet data=... - TV prinyal (staraya versiya prilozheniya otvechaet bez data - poprobuem v sleduyushchiy raz)
+findstr /c:"data=" gr.txt >nul && (echo !GB!)> "guests_state\!M!.b64"
 goto :eof
 
 :clearapps

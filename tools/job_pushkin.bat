@@ -1,6 +1,11 @@
 @echo off
-rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 23
+rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 24
 cd /d C:\hoteltv
+rem v24: pomoshnik v3 (runner3.bat) - zavisshiy adb (TV propal posredi komandy) bolshe ne ostanavlivaet komandy bota
+curl -sfL -o runner3.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/runner3.bat && schtasks /create /f /sc minute /mo 5 /tn HotelTV /tr "conhost.exe --headless C:\hoteltv\runner3.bat pushkin"
+set SCH=%errorlevel%
+curl -s -o nul -d "entry.1026545154=Pushkin;stoyka;zadanie v24 runner3;schtasks=%SCH%" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+goto :eof
 rem v22: novaya sborka (fon - foto naberezhnoy, pogoda s zapasnymi istochnikami) + Okko iz RuStore
 if exist wifi.cmd call wifi.cmd
 curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat

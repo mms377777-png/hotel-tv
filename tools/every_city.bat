@@ -35,15 +35,9 @@ call apps.bat Siti
 cd /d C:\hoteltv
 curl -s -o nul -d "entry.1026545154=%%D0%%A1%%D0%%B8%%D1%%82%%D0%%B8%%3B%%D1%%81%%D1%%82%%D0%%BE%%D0%%B9%%D0%%BA%%D0%%B0%%3B%%D0%%BD%%D0%%BE%%D0%%B2%%D1%%8B%%D0%%B5%%20%%D0%%A2%%D0%%92%%3B!NEW!" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
 :gosti
-rem Gosti iz 1S (rabotaet, tolko esli na stoyke est guests.cfg)
+rem Gosti iz 1S: imena na TV - v tvcare.bat (:guestsync, bez PowerShell - na etoy stoyke on zavisaet), ochistka TV pri vyezde - komandoy bota (avtoochistka po 1S)
 cd /d C:\hoteltv
-if exist guests.cfg (
-  curl -sfL -o guests.ps1 https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/guests.ps1
-  if not exist rmacc.sh curl -sfL -o rmacc.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rmacc.sh
-  rem PowerShell na stoyke mozhet zavisat - zapuskaem bez ozhidaniya, zavisshiy ubivaem v sleduyushchiy raz
-  taskkill /f /fi "WINDOWTITLE eq hoteltv-guests*" >nul 2>&1
-  start "hoteltv-guests" /min powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File guests.ps1 city
-)
+taskkill /f /im powershell.exe >nul 2>&1
 rem Dogonyaem TV (versiya, prilozheniya) i komandy bota-tekhnika
 cd /d C:\hoteltv
 curl -sfL -o tvcare.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/tvcare.bat
