@@ -17,7 +17,8 @@ try { $r = Invoke-RestMethod -UseBasicParsing -TimeoutSec 60 -Uri ("{0}?a=guests
 if ($r.error) { exit }
 $rooms = if ($r.rooms) { $r.rooms } else { $r }
 # zashchita: spisok ustarel (>30 min) ili pustoy - nichego ne trogaem, inache vse TV schitali by vyezd
-if ($r.t) { try { if (((Get-Date) - [datetime]$r.t).TotalMinutes -gt 30) { exit } } catch {} }
+$ageMin = ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() - [double]$r.t) / 60000
+if (-not $r.t -or $ageMin -gt 30) { exit }
 $lines = @(); foreach ($p in $rooms.PSObject.Properties) { if ($p.Name -ne 't' -and "$($p.Value)".Trim()) { $lines += "$($p.Name)`t$($p.Value)" } }
 if ($lines.Count -eq 0) { exit }
 $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(($lines -join "`n")))
