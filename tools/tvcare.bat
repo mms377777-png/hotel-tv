@@ -7,7 +7,7 @@ cd /d C:\hoteltv
 set "APPSDONE="
 set "A=platform-tools\adb.exe"
 set "H=%~1"
-if /i "%H%"=="city" (set "HN=Siti") else (set "HN=Pushkin")
+if /i "%H%"=="city" (set "HN=Siti") else if /i "%H%"=="zavod" (set "HN=Zavodskaya") else (set "HN=Pushkin")
 curl -sfL -o tvinfo.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/tvinfo.sh
 curl -sfL -o apkver_new.txt https://github.com/mms377777-png/hotel-tv/releases/download/latest/version.txt
 set LV=0
