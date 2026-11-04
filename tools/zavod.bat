@@ -32,6 +32,8 @@ for /f %%s in ('%ADB% -s %S% shell getprop ro.serialno') do set SN=%%s
 rem nomer po serijnomu (rooms_sn.txt: "SERIAL NOMER"), IP mozhet menyatsya
 if exist rooms_sn.txt for /f "tokens=1,2" %%a in (rooms_sn.txt) do if "%%a"=="%SN%" set ROOM=%%b
 if defined ROOM goto :room
+rem novye TV: stroka "IP NOMER" v rooms_ip.txt (dobavlyaetsya pri sopryazhenii)
+if exist rooms_ip.txt for /f "tokens=1,2" %%a in (rooms_ip.txt) do if "%%a"=="%IP%" set ROOM=%%b
 if "%IP%"=="192.168.1.57" set ROOM=3302
 if "%IP%"=="192.168.1.58" set ROOM=3304
 if "%IP%"=="192.168.1.59" set ROOM=3306
