@@ -4,6 +4,7 @@ cd /d C:\hoteltv
 set A=platform-tools\adb.exe
 if exist lock_sn.txt del lock_sn.txt
 for /f "skip=1 tokens=1,2" %%a in ('%A% devices') do if "%%b"=="device" call :lock %%a
+curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
 call apps.bat Zavod
 type apk.txt
 goto :eof
