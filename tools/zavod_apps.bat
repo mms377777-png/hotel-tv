@@ -13,6 +13,7 @@ for /f %%s in ('%A% -s %1 shell getprop ro.serialno') do set SN=%%s
 if exist lock_sn.txt findstr /x /c:"%SN%" lock_sn.txt >nul && goto :eof
 echo %SN%>> lock_sn.txt
 echo LOCK %SN%
-%A% -s %1 shell pm uninstall --user 0 mobi.zona
+rem lishnie: mobi.zona, Laym HD, Google Filmy, more.tv (reshenie Mihaila 04.11.2026)
+for %%p in (mobi.zona limehd.ru.ctv com.google.android.videos ru.more.play) do %A% -s %1 shell pm uninstall --user 0 %%p
 %A% -s %1 shell "pm disable-user --user 0 com.android.vending; for p in $(pm list packages | cut -d: -f2); do appops set $p REQUEST_INSTALL_PACKAGES deny 2>/dev/null; done; settings put secure install_non_market_apps 0; echo LOCKED"
 goto :eof
