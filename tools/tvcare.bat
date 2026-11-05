@@ -106,7 +106,7 @@ goto :eof
 rem ivi iz RuStore po zaprosu administratora - stavim i pri goste (gost sam prosit)
 curl -sfL -o rustore.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/rustore.sh
 %A% -s "!DS!" push rustore.sh /data/local/tmp/rustore.sh >nul 2>&1
-%A% -s "!DS!" shell timeout 200 sh /data/local/tmp/rustore.sh ru.ivi.client > ivi.txt 2>&1
+%A% -s "!DS!" shell timeout 100 sh /data/local/tmp/rustore.sh ru.ivi.client > ivi.txt 2>&1
 rem uspekh - tolko esli rustore.sh napisal "OK" ili "uzhe est" (pustoy otvet = TV propal ili ustanovka oborvalas)
 findstr /c:"ru.ivi.client OK" /c:"ru.ivi.client uzhe est" ivi.txt >nul || set "RES=err"
 %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
