@@ -1,6 +1,16 @@
 @echo off
-rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 26
+rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 27
 cd /d C:\hoteltv
+rem v27: novyy TV 192.168.0.249 (kod Dimy 05.11, nomer poka neizvesten) - tolko sopryazhenie i serijnyy nomer; ustanovka - kogda Mihail nazovet nomer
+(echo Siti;sopryazhenie;v27)> pair.txt
+platform-tools\adb.exe pair 192.168.0.249:46695 879078 >> pair.txt 2>&1
+timeout /t 3 /nobreak >nul
+set "HP="
+for /f "delims=" %%L in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr /c:"192.168.0.249:" ^| findstr _adb-tls-connect') do (for %%h in (%%L) do set "HP=%%h")
+if defined HP platform-tools\adb.exe connect %HP% >> pair.txt 2>&1
+if defined HP platform-tools\adb.exe -s %HP% shell getprop ro.serialno ro.product.model ro.build.version.release >> pair.txt 2>&1
+curl -s -o nul --data-urlencode "entry.1026545154@pair.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+goto :eof
 rem v26: razovo ochistit TV nomera 8 posle vyezda gostya (ostalsya vhod v Kinopoisk/Yandeks); dalshe eto delaet bot sam (avtoochistka po 1S)
 set "A=platform-tools\adb.exe"
 set "DS="

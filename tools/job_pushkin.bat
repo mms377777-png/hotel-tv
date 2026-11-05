@@ -1,6 +1,34 @@
 @echo off
-rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 24
+rem Komanda dlya TV Pushkina. Menyaetsya — vypolnyaetsya odin raz. Versiya: 25
 cd /d C:\hoteltv
+rem v25: DEXP 301, 308, 311, 313 - sopryazhenie po kodam Dimy (05.11, gruppa "Kms internet"), nomer po serijnomu, ustanovka + prilozheniya
+(echo Pushkin;sopryazhenie;v25)> pair.txt
+call :pr 192.168.1.108:40839 434858 301
+call :pr 192.168.1.111:36695 671510 308
+call :pr 192.168.1.116:44019 985019 313
+call :pr 192.168.1.110:45071 592910 311
+curl -s -o nul --data-urlencode "entry.1026545154@pair.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+if exist wifi.cmd call wifi.cmd
+curl -sfL -o pushkin.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pushkin.bat
+call pushkin.bat > inst25.txt 2>&1
+cd /d C:\hoteltv
+curl -s -o nul --data-urlencode "entry.1026545154@install_log.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
+call apps.bat Pushkin
+goto :eof
+:pr
+rem %1 ip:port sopryazheniya, %2 kod, %3 nomer
+platform-tools\adb.exe pair %1 %2 >> pair.txt 2>&1
+timeout /t 3 /nobreak >nul
+for /f "tokens=1 delims=:" %%i in ("%1") do set "IP=%%i"
+set "HP="
+for /f "delims=" %%L in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr /c:"%IP%:" ^| findstr _adb-tls-connect') do (for %%h in (%%L) do set "HP=%%h")
+if defined HP platform-tools\adb.exe connect %HP% >> pair.txt 2>&1
+set "SN="
+if defined HP for /f %%s in ('platform-tools\adb.exe -s %HP% shell getprop ro.serialno') do set SN=%%s
+(echo %3 serial=%SN% hp=%HP%)>> pair.txt
+if defined SN (findstr /b "%SN% " rooms_sn.txt >nul 2>&1 || (echo %SN% %3)>> rooms_sn.txt)
+goto :eof
 rem v24: pomoshnik v3 (runner3.bat) - zavisshiy adb (TV propal posredi komandy) bolshe ne ostanavlivaet komandy bota
 curl -sfL -o runner3.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/runner3.bat && schtasks /create /f /sc minute /mo 5 /tn HotelTV /tr "conhost.exe --headless C:\hoteltv\runner3.bat pushkin"
 set SCH=%errorlevel%
