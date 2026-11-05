@@ -1,6 +1,29 @@
 @echo off
-rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 27
+rem Komanda dlya TV Siti Centra. Menyaetsya — vypolnyaetsya odin raz. Versiya: 28
 cd /d C:\hoteltv
+rem v28: TV nomera 5 (DEXP) - kod Dimy 05.11 (192.168.0.249), nomer 5: sopryazhenie, serijnyy -> rooms_sn, ustanovka tolko na nego
+(echo Siti;sopryazhenie;v28 nomer 5)> pair.txt
+platform-tools\adb.exe pair 192.168.0.249:46695 879078 >> pair.txt 2>&1
+timeout /t 3 /nobreak >nul
+set "HP="
+for /f "delims=" %%L in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr /c:"192.168.0.249:" ^| findstr _adb-tls-connect') do (for %%h in (%%L) do set "HP=%%h")
+if defined HP platform-tools\adb.exe connect %HP% >> pair.txt 2>&1
+set "SN5="
+if defined HP for /f %%s in ('platform-tools\adb.exe -s %HP% shell getprop ro.serialno') do set SN5=%%s
+(echo serial=%SN5% hp=%HP%)>> pair.txt
+curl -s -o nul --data-urlencode "entry.1026545154@pair.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+if not defined SN5 goto :eof
+findstr /b "%SN5% " rooms_sn.txt >nul 2>&1 || (echo %SN5% 5)>> rooms_sn.txt
+if exist wifi.cmd call wifi.cmd
+set "ONLY=%HP%"
+curl -sfL -o city.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/city.bat
+call city.bat > inst5.txt 2>&1
+set "ONLY="
+cd /d C:\hoteltv
+curl -s -o nul --data-urlencode "entry.1026545154@install_log.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
+call apps.bat Siti "%HP%"
+goto :eof
 rem v27: novyy TV 192.168.0.249 (kod Dimy 05.11, nomer poka neizvesten) - tolko sopryazhenie i serijnyy nomer; ustanovka - kogda Mihail nazovet nomer
 (echo Siti;sopryazhenie;v27)> pair.txt
 platform-tools\adb.exe pair 192.168.0.249:46695 879078 >> pair.txt 2>&1
