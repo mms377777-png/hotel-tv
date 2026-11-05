@@ -23,6 +23,8 @@ goto :eof
 
 :one
 set S=%~1
+rem ONLY=<ustroystvo> (iz tvcare :pair) - stavit tolko na nego
+if defined ONLY if /i not "%S%"=="%ONLY%" goto :eof
 set IP=
 set IPM=
 for /f "tokens=4" %%i in ('%ADB% -s %S% shell ip -4 -o addr show wlan0') do set IPM=%%i

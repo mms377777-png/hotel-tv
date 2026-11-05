@@ -30,6 +30,10 @@ rem staryy spisok udalyaem: pri pustom otvete curl fayl ne perezapisyvaet i koma
 if exist tvq.txt del tvq.txt
 curl -sL -G -o tvq.txt "%URL%" --data-urlencode "a=tvq" --data-urlencode "h=%H%" --data-urlencode "k=!KEY!"
 if exist tvq.txt for /f "usebackq tokens=1-3 delims=|" %%a in ("tvq.txt") do call :cmd %%a %%b %%c
+rem kody sopryazheniya ot tehnika (foto v gruppe "Kms internet" -> bot -> list TV-kody): stoyka sama sopryagaet i stavit prilozhenie
+if exist tvp.txt del tvp.txt
+curl -sL -G -o tvp.txt "%URL%" --data-urlencode "a=tvpair" --data-urlencode "h=%H%" --data-urlencode "k=!KEY!"
+if exist tvp.txt for /f "usebackq tokens=1-4 delims=|" %%a in ("tvp.txt") do call :pair %%a %%b %%c %%d
 rem imena gostey na TV bez PowerShell (na stoyke Siti PowerShell zavisaet): bot otdaet gotovuyu stroku base64 dlya GuestReceiver
 if /i "%H%"=="city" call :guestsync
 :catchup
@@ -158,4 +162,33 @@ findstr /c:"Success" upd.txt >nul || set "RES=err"
 %A% -s "!DS!" shell cmd role add-role-holder --user 0 android.app.role.HOME ru.hotelkms.tv >nul 2>&1
 %A% -s "!DS!" shell pm disable-user --user 0 com.google.android.tvlauncher >nul 2>&1
 %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
+goto :eof
+
+:pair
+rem %1 stroka lista, %2 nomer, %3 ip:port sopryazheniya, %4 kod
+set "PID=%~1" & set "PRM=%~2" & set "PHP=%~3" & set "PCD=%~4"
+set "PRES=fail"
+%A% pair %PHP% %PCD% > pair_out.txt 2>&1
+findstr /c:"Successfully paired" pair_out.txt >nul || goto :prep
+set "PRES=noconn"
+for /f "tokens=1 delims=:" %%i in ("%PHP%") do set "PIP=%%i"
+timeout /t 3 /nobreak >nul
+set "PH="
+for /f "delims=" %%L in ('%A% mdns services 2^>nul ^| findstr /c:"!PIP!:" ^| findstr _adb-tls-connect') do (for %%h in (%%L) do set "PH=%%h")
+if not defined PH goto :prep
+%A% connect !PH! >nul 2>&1
+set "PSN="
+for /f %%s in ('%A% -s !PH! shell getprop ro.serialno') do set "PSN=%%s"
+if not defined PSN goto :prep
+findstr /b "!PSN! " rooms_sn.txt >nul 2>&1 || (echo !PSN! %PRM%)>> rooms_sn.txt
+rem ustanovka tolko na etot TV (ONLY) - ustanovshchik gostinitsy
+set "ONLY=!PH!"
+curl -sfL -o inst_%H%.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/%H%.bat
+call inst_%H%.bat > inst_pair.txt 2>&1
+set "ONLY="
+cd /d C:\hoteltv
+set "PRES=ok"
+curl -s -o nul --data-urlencode "entry.1026545154@install_log.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+:prep
+curl -sL -G -o nul "%URL%" --data-urlencode "a=tvpaired" --data-urlencode "k=!KEY!" --data-urlencode "id=%PID%" --data-urlencode "r=!PRES!"
 goto :eof

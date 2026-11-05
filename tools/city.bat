@@ -16,11 +16,18 @@ goto :eof
 
 :one
 set S=%~1
+rem ONLY=<ustroystvo> (iz tvcare :pair) - stavit tolko na nego
+if defined ONLY if /i not "%S%"=="%ONLY%" goto :eof
 set IP=
 set IPM=
 for /f "tokens=4" %%i in ('%ADB% -s %S% shell ip -4 -o addr show wlan0') do set IPM=%%i
 for /f "delims=/" %%j in ("%IPM%") do set IP=%%j
 set ROOM=
+set SN=
+for /f %%s in ('%ADB% -s %S% shell getprop ro.serialno') do set SN=%%s
+rem nomer po serijnomu (rooms_sn.txt: "SERIAL NOMER") - dlya TV, sopryazhennyh po kodu tehnika
+if exist rooms_sn.txt for /f "tokens=1,2" %%a in (rooms_sn.txt) do if "%%a"=="%SN%" set ROOM=%%b
+if defined ROOM goto :roomok
 if "%IP%"=="192.168.0.24" set ROOM=1
 if "%IP%"=="192.168.0.6" set ROOM=2
 if "%IP%"=="192.168.0.14" set ROOM=3
@@ -35,6 +42,7 @@ if "%IP%"=="192.168.0.248" set ROOM=12
 if "%IP%"=="192.168.0.58" set ROOM=13
 if "%IP%"=="192.168.0.2" set ROOM=14
 if "%IP%"=="192.168.0.22" set ROOM=REC
+:roomok
 if not defined ROOM (echo SKIP %S% ip=%IP% >> %LOG%& goto :eof)
 if defined DONE_%ROOM% (echo DUP %S% room %ROOM% >> %LOG%& goto :eof)
 set DONE_%ROOM%=1
