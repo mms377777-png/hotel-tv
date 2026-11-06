@@ -1,42 +1,32 @@
 @echo off
-rem Komanda dlya TV Zavodskoy. Menyaetsya - vypolnyaetsya odin raz. Versiya: 4
+rem Komanda dlya TV Zavodskoy. Menyaetsya - vypolnyaetsya odin raz. Versiya: 5
 cd /d C:\hoteltv
-rem v4: ochistka guests.cfg ot musora (ostavit tolko url=) + k.bat: klyuch po odnorazovomu kodu bota (v cmd: k 123456), parametr code=, tolko pervaya stroka otveta
-findstr /b "url=" guests.cfg > g.tmp
-findstr /b "url=" g.tmp >nul || echo url=https://script.google.com/macros/s/AKfycbwX7fxIP66d1OLm4s3kOi8aadSGziVi-yyxxyvlgfndMN8XeRxLwRyWGW9WixgSF3wk/exec>> g.tmp
-move /y g.tmp guests.cfg >nul
-echo @echo off> k.bat
-echo cd /d C:\hoteltv>> k.bat
-echo curl -sL -o key.txt "https://script.google.com/macros/s/AKfycbwX7fxIP66d1OLm4s3kOi8aadSGziVi-yyxxyvlgfndMN8XeRxLwRyWGW9WixgSF3wk/exec?a=getkey^&code=%%1">> k.bat
-echo set K=>> k.bat
-echo set /p K=^<key.txt>> k.bat
-echo del key.txt>> k.bat
-echo if "%%K%%"=="" (echo NET: pustoi otvet ^& exit /b 1^)>> k.bat
-echo if "%%K:~0,3%%"=="ERR" (echo NET: %%K%% - kod neveren ili ustarel ^& exit /b 1^)>> k.bat
-echo if "%%K:~0,1%%"=="^<" (echo NET: bot vernul stranitsu, a ne klyuch ^& exit /b 1^)>> k.bat
-echo findstr /v /b "key=" guests.cfg ^> g.tmp>> k.bat
-echo echo key=%%K%%^>^>g.tmp>> k.bat
-echo move /y g.tmp guests.cfg ^>nul>> k.bat
-echo echo OK: klyuch zapisan>> k.bat
-for /d %%u in (C:\Users\*) do copy /y k.bat "%%u\k.bat" >nul 2>&1
-curl -s -o nul -d "entry.1026545154=Zavodskaya;stoyka;zadanie v4 k.bat code" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+rem v5 (06.11.2026): diagnostika stoyki v zhurnal (klyuch tolko da/net, sam klyuch nikuda ne pishem); guests.cfg ne trogaem (v4 stiral stroku key=)
+set "F=https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+set "KEYOK=net"
+findstr /b "key=" guests.cfg >nul 2>&1 && set "KEYOK=da"
+set "URLOK=net"
+findstr /b "url=" guests.cfg >nul 2>&1 && set "URLOK=da"
+set "LOCK=net"
+if exist every.lock set "LOCK=da"
+set "W="
+if exist every.wait set /p W=<every.wait
+(
+echo Zavodskaya;stoyka;diag v5;key=%KEYOK%;url=%URLOK%;lock=%LOCK%;wait=%W%
+echo --- every.bat:
+findstr /b /c:"rem Kazhdye" every.bat
+echo --- fayly:
+dir /o-d guests.cfg every.bat tvcare.bat every_log.txt job_last.bat k.bat 2>nul | findstr /r "[0-9]:[0-9]"
+echo --- every_log.txt:
+if exist every_log.txt findstr /v /i "key=" every_log.txt
+echo --- adb:
+tasklist /fi "imagename eq adb.exe" /nh
+echo --- zadacha HotelTV:
+schtasks /query /tn HotelTV /fo list | findstr /i "Status Next Last"
+) > diag.txt 2>&1
+curl -s -o nul --data-urlencode "entry.1026545154@diag.txt" "%F%"
 goto :eof
 rem --- istoriya ---
-rem v3: k.bat - poluchit klyuch gostey po odnorazovomu kodu ot bota (v cmd: k 123456), pishet key= v guests.cfg
-(echo @echo off ^& cd /d C:\hoteltv ^& curl -sL -G -o key.txt "https://script.google.com/macros/s/AKfycbwX7fxIP66d1OLm4s3kOi8aadSGziVi-yyxxyvlgfndMN8XeRxLwRyWGW9WixgSF3wk/exec" --data-urlencode "a=getkey" --data-urlencode "c=%%1" ^& findstr /b "ERR" key.txt ^>nul ^&^& (echo NET: kod neveren ili ustarel ^& del key.txt ^& exit /b 1^) ^& findstr /v /b "key=" guests.cfg ^> g.tmp ^& for /f %%%%k in (key.txt^) do echo key=%%%%k^>^>g.tmp ^& move /y g.tmp guests.cfg ^>nul ^& del key.txt ^& echo OK: klyuch zapisan)> k.bat
-for /d %%u in (C:\Users\*) do copy /y k.bat "%%u\k.bat" >nul 2>&1
-curl -s -o nul -d "entry.1026545154=Zavodskaya;stoyka;zadanie v3 k.bat" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
-goto :eof
-rem v2: pomoshnik dlya vvoda klyucha gostey na stoyke (tolko Mihail, vruchnuyu): v cmd nabrat "9 <klyuch>"; adres bota v guests.cfg
-(echo @echo key=%%1^>^>C:\hoteltv\guests.cfg ^& echo OK ^& del "%%~f0")> 9.bat
-for /d %%u in (C:\Users\*) do copy /y 9.bat "%%u\9.bat" >nul 2>&1
-findstr /b "url=" guests.cfg >nul 2>&1 || (echo url=https://script.google.com/macros/s/AKfycbwX7fxIP66d1OLm4s3kOi8aadSGziVi-yyxxyvlgfndMN8XeRxLwRyWGW9WixgSF3wk/exec)>> guests.cfg
-curl -s -o nul -d "entry.1026545154=Zavodskaya;stoyka;zadanie v2 9.bat" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
-goto :eof
-rem v1: prilozheniya (Rutube, Kinopoisk, Okko, ivi) + blokirovka na vseh TV; otchet v zhurnal
-curl -sfL -o zavod_apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/zavod_apps.bat
-call zavod_apps.bat > apps_log.txt 2>&1
-cd /d C:\hoteltv
-curl -s -o nul --data-urlencode "entry.1026545154@apk.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
-curl -s -o nul -d "entry.1026545154=Zavodskaya;stoyka;zadanie v1 apps" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
-goto :eof
+rem v4: ochistka guests.cfg ot musora (ostavit tolko url=) + k.bat: klyuch po odnorazovomu kodu bota (v cmd: k 123456), parametr code=, tolko pervaya stroka
+rem (v4 vypolnen 06.11 15:48 - stroka key= sterta vmeste s musorom; k.bat lezhit v C:\hoteltv i C:\Users\*)
+rem v3: k.bat cherez parametr c= (Google otdaet Page not found); v2: 9.bat dlya vvoda klyucha vruchnuyu; v1: prilozheniya (Rutube, Kinopoisk, Okko, ivi)
