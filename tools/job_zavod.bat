@@ -1,7 +1,8 @@
 @echo off
-rem Komanda dlya TV Zavodskoy. Menyaetsya - vypolnyaetsya odin raz. Versiya: 5
+setlocal enabledelayedexpansion
+rem Komanda dlya TV Zavodskoy. Menyaetsya - vypolnyaetsya odin raz. Versiya: 6
 cd /d C:\hoteltv
-rem v5 (06.11.2026): diagnostika stoyki v zhurnal (klyuch tolko da/net, sam klyuch nikuda ne pishem); guests.cfg ne trogaem (v4 stiral stroku key=)
+rem v6 (06.11.2026): + proverka klyucha (otvet bota), stroki guests.cfg bez soderzhimogo, tvp/tvq. v5: diagnostika stoyki v zhurnal (klyuch tolko da/net, sam klyuch nikuda ne pishem); guests.cfg ne trogaem (v4 stiral stroku key=)
 set "F=https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
 set "KEYOK=net"
 findstr /b "key=" guests.cfg >nul 2>&1 && set "KEYOK=da"
@@ -12,11 +13,23 @@ if exist every.lock set "LOCK=da"
 set "W="
 if exist every.wait set /p W=<every.wait
 (
-echo Zavodskaya;stoyka;diag v5;key=%KEYOK%;url=%URLOK%;lock=%LOCK%;wait=%W%
+echo Zavodskaya;stoyka;diag v6;key=%KEYOK%;url=%URLOK%;lock=%LOCK%;wait=%W%
 echo --- every.bat:
 findstr /b /c:"rem Kazhdye" every.bat
 echo --- fayly:
 dir /o-d guests.cfg every.bat tvcare.bat every_log.txt job_last.bat k.bat 2>nul | findstr /r "[0-9]:[0-9]"
+echo --- guests.cfg stroki (pervye 4 simvola, dlina):
+for /f "usebackq delims=" %%l in ("guests.cfg") do (set "L=%%l" & set "LEN=korotkaya" & if not "!L:~40!"=="" set "LEN=dlinnaya" & echo !L:~0,4! !LEN!)
+echo --- otvet bota na tvpaired id=0 (ERR id = klyuch veren, ERR key = klyuch neveren):
+set "URL=" & set "KEY="
+for /f "usebackq tokens=1,* delims==" %%a in ("guests.cfg") do (if "%%a"=="url" set "URL=%%b"
+ if "%%a"=="key" set "KEY=%%b")
+set "KEY=!KEY: =!"
+curl -sL -G "!URL!" --data-urlencode "a=tvpaired" --data-urlencode "k=!KEY!" --data-urlencode "id=0" 2>&1
+echo.
+echo --- tvp.txt / tvq.txt (poslednie otvety bota):
+if exist tvp.txt type tvp.txt
+if exist tvq.txt type tvq.txt
 echo --- every_log.txt:
 if exist every_log.txt findstr /v /i "key=" every_log.txt
 echo --- adb:
