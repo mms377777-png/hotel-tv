@@ -1,10 +1,12 @@
 @echo off
-rem Kazhdye 5 minut (Siti): esli poyavilsya NOVYY TV (po serialnomu nomeru) - stavim prilozhenie i nastroyki.
+rem Kazhdye 5 minut (Siti): esli poyavilsya NOVYY TV (po serialnomu nomeru) - stavim prilozhenie i nastroyki. Versiya 3
 setlocal enabledelayedexpansion
 cd /d C:\hoteltv
 rem adb-server zapuskaem zaranee: esli on startuet vnutri for /f, for zhdet ego vechno i pomoshnik zavisaet
 platform-tools\adb.exe start-server >nul 2>&1
 if not exist known_sn.txt type nul > known_sn.txt
+rem v3 (06.11.2026): zavisshie "offline" podklyucheniya - adb connect k nim otvechaet "already connected", TV ne vozvrashchaetsya (Siti 3 vklyuchen, a stoyka "ne na svyazi"); snachala disconnect
+for /f "skip=1 tokens=1,2" %%a in ('platform-tools\adb.exe devices') do if "%%b"=="offline" platform-tools\adb.exe disconnect %%a >nul 2>&1
 rem perepodklyuchenie TV po Wi-Fi (adb teryaet svyaz s TV, kogda TV zasypaet ili perezapuskaetsya adb)
 rem posledniy stolbec stroki mdns = ip:port (v imeni servisa byvayut probely, naprimer "(2)")
 for /f "delims=" %%L in ('platform-tools\adb.exe mdns services 2^>nul ^| findstr _adb-tls-connect') do (

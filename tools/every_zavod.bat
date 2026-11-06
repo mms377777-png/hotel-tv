@@ -1,5 +1,5 @@
 @echo off
-rem Kazhdye 5 minut (Zavodskaya): perepodklyuchenie TV po mdns, schet TV na svyazi (v zhurnal pri izmenenii), prilozhenie na novye TV, komandy bota (tvcare). Versiya 2
+rem Kazhdye 5 minut (Zavodskaya): perepodklyuchenie TV po mdns, schet TV na svyazi (v zhurnal pri izmenenii), prilozhenie na novye TV, komandy bota (tvcare). Versiya 3
 rem v2 (06.11.2026): v1 byl bit - v fayle propali %% i \ (platform-tools\adb.exe), every.bat padal s oshibkoy sintaksisa, lock ne snimalsya, tvcare ne zapuskalsya, kody tehnika ne zabiralis
 setlocal enabledelayedexpansion
 cd /d C:\hoteltv
@@ -7,6 +7,8 @@ set "A=platform-tools\adb.exe"
 set "F=https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
 rem adb-server zapuskaem zaranee: esli on startuet vnutri for /f, for zhdet ego vechno i pomoshnik zavisaet
 %A% start-server >nul 2>&1
+rem v3 (06.11.2026): zavisshie "offline" podklyucheniya - adb connect k nim otvechaet "already connected", TV ne vozvrashchaetsya; snachala disconnect
+for /f "skip=1 tokens=1,2" %%a in ('%A% devices') do if "%%b"=="offline" %A% disconnect %%a >nul 2>&1
 rem perepodklyuchenie TV po Wi-Fi: posledniy stolbec stroki mdns = ip:port
 for /f "delims=" %%L in ('%A% mdns services 2^>nul ^| findstr _adb-tls-connect') do (
   set "HP="
