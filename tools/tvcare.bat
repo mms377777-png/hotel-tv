@@ -15,6 +15,9 @@ if exist apkver_new.txt set /p LV=<apkver_new.txt
 set HV=0
 if exist apkver_have.txt set /p HV=<apkver_have.txt
 type nul > tvmap.txt
+rem 06.11.2026: odin TV byvaet podklyuchen dvazhdy (ip:port i mdns-imya) - beryom tolko pervoe podklyuchenie (klyuch: serijnyy nomer + komnata)
+set "SEEN= "
+set "F=https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
 for /f "skip=1 tokens=1,2 delims=	" %%a in ('%A% devices') do if "%%b"=="device" call :dev "%%a"
 rem --- komandy bota ---
 if not exist guests.cfg goto :catchup
@@ -53,9 +56,16 @@ set "S=%~1"
 set "INFO="
 for /f "delims=" %%i in ('%A% -s "%S%" shell sh /data/local/tmp/tvinfo.sh 2^>nul') do set "INFO=%%i"
 if not defined INFO goto :eof
-set R=0& set V=0& set G=0& set RT=1& set KP=1& set OK=1& set IV=1
-for /f "tokens=1-7" %%a in ("!INFO!") do (set "R=%%a"& set "V=%%b"& set "G=%%c"& set "RT=%%d"& set "KP=%%e"& set "OK=%%f"& if not "%%g"=="" set "IV=%%g")
+set R=0& set V=0& set G=0& set RT=1& set KP=1& set OK=1& set IV=1& set "SN="
+for /f "tokens=1-8" %%a in ("!INFO!") do (set "R=%%a"& set "V=%%b"& set "G=%%c"& set "RT=%%d"& set "KP=%%e"& set "OK=%%f"& if not "%%g"=="" set "IV=%%g"& set "SN=%%h")
 if /i "!R!"=="none" set "R=0"
+if "!SN!"=="x" set "SN="
+if "!R!"=="0" set "SN="
+rem goto vnutri bloka/for zdes nelzya - lomaet perebor TV v vyzyvayushchem for; poetomu flag DUP
+set "DUP="
+if defined SN for %%k in (" !SN!_!R! ") do if not "!SEEN:%%~k=!"=="!SEEN!" set "DUP=1"
+if defined DUP goto :eof
+if defined SN set "SEEN=!SEEN!!SN!_!R! "
 (echo !R!	!S!	!V!	!G!	!RT!!KP!!OK!!IV!)>> tvmap.txt
 goto :eof
 
@@ -65,7 +75,23 @@ if not "!HV!"=="!LV!" (curl -sfL -o hotel-tv.apk https://github.com/mms377777-pn
 %A% -s "%S%" shell pm grant ru.hotelkms.tv android.permission.WRITE_SECURE_SETTINGS >nul 2>&1
 %A% -s "%S%" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
 findstr /c:"Success" upd.txt >nul && set "RES=ok" || set "RES=oshibka"
-curl -s -o nul -d "entry.1026545154=%HN%;obnovlenie;!R!;!V! na !LV! !RES!" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
+rem 06.11.2026: pri oshibke v zhurnal - prichina iz otveta ustanovki (offline, mesto, podpis)
+if "!RES!"=="ok" (<nul set /p "=%HN%;obnovlenie;!R!;!V! na !LV! ok" > updlog.txt) else (
+  <nul set /p "=%HN%;obnovlenie;!R!;!V! na !LV! oshibka | prichina: " > updlog.txt
+  findstr /i /c:"Failure" /c:"error" /c:"offline" /c:"not found" upd.txt >> updlog.txt || type upd.txt >> updlog.txt
+)
+curl -s -o nul --data-urlencode "entry.1026545154@updlog.txt" "%F%"
+goto :eof
+
+:reboot
+rem 06.11.2026: TV vklyuchili menshe 15 minut nazad (rozetka) - perezagruzka ne nuzhna i sryvaet obnovlenie prilozheniya
+set "UP=99999"
+for /f "tokens=1 delims=. " %%u in ('%A% -s "!DS!" shell cat /proc/uptime 2^>nul') do set "UP=%%u"
+if !UP! LSS 900 (
+  curl -s -o nul --data-urlencode "entry.1026545154=%HN%;perezagruzka;!RM!;propushchena - TV vklyuchen !UP! s nazad" "%F%"
+  goto :eof
+)
+%A% -s "!DS!" reboot >nul 2>&1
 goto :eof
 
 :apps
@@ -91,7 +117,7 @@ set "RES=off"
 if not defined DS goto :rep
 set "RES=ok"
 if "%AC%"=="restart_app" (%A% -s "!DS!" shell am force-stop ru.hotelkms.tv & %A% -s "!DS!" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1)
-if "%AC%"=="reboot_tv" %A% -s "!DS!" reboot >nul 2>&1
+if "%AC%"=="reboot_tv" call :reboot
 if "%AC%"=="resend_guest" (del /q guests_state\* >nul 2>&1)
 if "%AC%"=="reinstall_app" call :reinst
 if "%AC%"=="install_ivi" call :ivi
