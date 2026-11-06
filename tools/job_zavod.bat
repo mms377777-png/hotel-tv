@@ -1,11 +1,12 @@
 @echo off
 setlocal disabledelayedexpansion
 cd /d C:\hoteltv
+rem v9 (06.11.2026): NASTOYASHCHAYA prichina ERR key - v k.bat adres byl "...getkey^&code=" (karetka vnutri kavychek popadala v fayl), bot ne videl parametr code i otdaval ne klyuch; teper & bez karetki. Klyuch 16:40 vveden vruchnuyu, rabotaet.
 rem v8 (06.11.2026): v7 generiroval k.bat s vosklitsatelnymi peremennymi - runner3 zapuskaet job s delayed expansion, oni raskrylis v musor; teper tolko %%K%% i redirect v nachale stroki
 rem v7 (06.11.2026): k.bat zanovo - v v4 stroka "echo key=%%K%%>>g.tmp" terjala poslednyuyu tsifru klyucha (tsifra pered >> = nomer deskriptora), poetomu klyuch byl neveren (ERR key)
 echo @echo off> k.bat
 echo cd /d C:\hoteltv>> k.bat
-echo curl -sL -o key.txt "https://script.google.com/macros/s/AKfycbwX7fxIP66d1OLm4s3kOi8aadSGziVi-yyxxyvlgfndMN8XeRxLwRyWGW9WixgSF3wk/exec?a=getkey^&code=%%1">> k.bat
+echo curl -sL -o key.txt "https://script.google.com/macros/s/AKfycbwX7fxIP66d1OLm4s3kOi8aadSGziVi-yyxxyvlgfndMN8XeRxLwRyWGW9WixgSF3wk/exec?a=getkey&code=%%1">> k.bat
 echo set "K=">> k.bat
 echo set /p K=^<key.txt>> k.bat
 echo del key.txt>> k.bat
@@ -15,11 +16,11 @@ echo if "%%K:~0,1%%"=="^<" (echo NET: bot vernul stranitsu, a ne klyuch ^& exit 
 echo findstr /v /b "key=" guests.cfg ^> g.tmp>> k.bat
 echo ^>^>g.tmp echo key=%%K%%>> k.bat
 echo move /y g.tmp guests.cfg ^>nul>> k.bat
-echo echo OK: klyuch zapisan v8>> k.bat
+echo echo OK: klyuch zapisan v9>> k.bat
 for /d %%u in (C:\Users\*) do copy /y k.bat "%%u\k.bat" >nul 2>&1
 endlocal
 setlocal enabledelayedexpansion
-rem Komanda dlya TV Zavodskoy. Menyaetsya - vypolnyaetsya odin raz. Versiya: 8
+rem Komanda dlya TV Zavodskoy. Menyaetsya - vypolnyaetsya odin raz. Versiya: 9
 cd /d C:\hoteltv
 rem v6 (06.11.2026): + proverka klyucha (otvet bota), stroki guests.cfg bez soderzhimogo, tvp/tvq. v5: diagnostika stoyki v zhurnal (klyuch tolko da/net, sam klyuch nikuda ne pishem); guests.cfg ne trogaem (v4 stiral stroku key=)
 set "F=https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
@@ -32,7 +33,7 @@ if exist every.lock set "LOCK=da"
 set "W="
 if exist every.wait set /p W=<every.wait
 (
-echo Zavodskaya;stoyka;diag v8;key=%KEYOK%;url=%URLOK%;lock=%LOCK%;wait=%W%
+echo Zavodskaya;stoyka;diag v9;key=%KEYOK%;url=%URLOK%;lock=%LOCK%;wait=%W%
 echo --- every.bat:
 findstr /b /c:"rem Kazhdye" every.bat
 echo --- fayly:
