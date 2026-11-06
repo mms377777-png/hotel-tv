@@ -1,5 +1,5 @@
 @echo off
-rem Kazhdye 5 minut: proverka telefonov Pushkina. Pishet v zhurnal (Google Forma) tolko pri izmenenii i raz v chas.
+rem Kazhdye 5 minut: proverka telefonov Pushkina, perepodklyuchenie TV (v3). Pishet v zhurnal (Google Forma) tolko pri izmenenii i raz v chas.
 setlocal enabledelayedexpansion
 cd /d C:\hoteltv
 rem adb-server zapuskaem zaranee: esli on startuet vnutri for /f, for zhdet ego vechno i pomoshnik zavisaet
@@ -40,6 +40,15 @@ if exist guests.cfg (
   rem PowerShell na stoyke mozhet zavisat - zapuskaem bez ozhidaniya, zavisshiy ubivaem v sleduyushchiy raz
   taskkill /f /fi "WINDOWTITLE eq hoteltv-guests*" >nul 2>&1
   start "hoteltv-guests" /min powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File guests.ps1 pushkin
+)
+rem v3 (06.11.2026): perepodklyuchenie TV kazhdye 5 minut, kak v Siti/Zavodskoy: zavisshie offline-podklyucheniya snachala disconnect, potom mdns + fiksirovannye 5555
+cd /d C:\hoteltv
+for /f "skip=1 tokens=1,2" %%a in ('platform-toolsdb.exe devices') do if "%%b"=="offline" platform-toolsdb.exe disconnect %%a >nul 2>&1
+for %%i in (108 109 110 111 112) do platform-toolsdb.exe connect 192.168.1.%%i:5555 >nul 2>&1
+for /f "delims=" %%L in ('platform-toolsdb.exe mdns services 2^>nul ^| findstr _adb-tls-connect') do (
+  set "HP="
+  for %%h in (%%L) do set "HP=%%h"
+  platform-toolsdb.exe connect !HP! >nul 2>&1
 )
 rem Dogonyaem TV (versiya, prilozheniya) i komandy bota-tekhnika
 cd /d C:\hoteltv
