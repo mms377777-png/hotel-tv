@@ -21,10 +21,7 @@ echo [%S%] >> apk.txt
 %A% -s "%S%" install -r rt.apk 2>&1 | find /v "Performing" >> apk.txt
 %A% -s "%S%" install -r RuStoreTV.apk 2>&1 | find /v "Performing" >> apk.txt
 for /f %%p in ('%A% -s "%S%" shell "pm list packages | grep -i -e vk.store -e rustore | cut -d: -f2"') do %A% -s "%S%" shell appops set %%p REQUEST_INSTALL_PACKAGES allow
-rem v nomere zhivut gosti (na TV est imya gostya) - RuStore ne otkryvaem, chtoby ne meshat; postavim posle vyezda
-set G=0
-for /f %%g in ('%A% -s "%S%" shell "run-as ru.hotelkms.tv cat shared_prefs/hotel_tv.xml 2>/dev/null | grep -c 'guest_name..[^<]'"') do set G=%%g
-if not "%G%"=="0" (echo gost v nomere - RuStore propushen >> apk.txt& goto :eof)
+rem 06.11.2026 (Mikhail): nedostayushchie prilozheniya stavim i pri goste v nomere (ran'she propuskali - ivi na Siti 3 ne stavilsya iz-za starogo imeni gostya)
 %A% -s "%S%" push rustore.sh /data/local/tmp/rustore.sh >nul 2>&1
 rem timeout na TV: esli RuStore zavis, ustanovka ne derzhit zapusk stoyki
 %A% -s "%S%" shell timeout 100 sh /data/local/tmp/rustore.sh ru.kinopoisk.tv >> apk.txt 2>&1

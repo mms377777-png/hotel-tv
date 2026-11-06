@@ -29,6 +29,10 @@ for /f "usebackq tokens=1,* delims==" %%a in ("guests.cfg") do (
 if not defined KEY goto :catchup
 rem 9.bat zapisal klyuch s probelom v kontse - ubiraem probely, inache curl ne otpravlyaet zapros ("Malformed input")
 set "KEY=!KEY: =!"
+rem 06.11.2026: soobshchaem botu, kakie TV vidim: nomer:versiya:RKOI (Rutube, Kinopoisk, Okko, ivi) - bot znaet, kto na svyazi i chego ne hvataet (storozh svyazi)
+set "D="
+for /f "usebackq tokens=1,3,5 delims=	" %%a in ("tvmap.txt") do set "D=!D!%%a:%%b:%%c,"
+curl -sL -G -o nul "%URL%" --data-urlencode "a=tvseen" --data-urlencode "h=%H%" --data-urlencode "k=!KEY!" --data-urlencode "d=!D!"
 rem staryy spisok udalyaem: pri pustom otvete curl fayl ne perezapisyvaet i komandy vypolnilis by snova
 if exist tvq.txt del tvq.txt
 curl -sL -G -o tvq.txt "%URL%" --data-urlencode "a=tvq" --data-urlencode "h=%H%" --data-urlencode "k=!KEY!"
@@ -47,7 +51,8 @@ goto :eof
 set "S=%~1" & set "R=%2" & set "V=%3" & set "G=%4" & set "AP=%5"
 if !LV! GTR 0 if !V! GTR 0 if !V! LSS !LV! call :upd
 rem prilozheniya dogonyaem ne bolshe chem na odnom TV za zapusk: ustanovka idet minutami, a zapusk dolzhen ukladyvatsya v 5 minut (inache komandy bota zhdut)
-if not defined APPSDONE if "!G!"=="0" if not "!AP!"=="1111" (set "APPSDONE=1" & call :apps)
+rem 06.11.2026 (Mikhail): stavim i pri goste v nomere - pri pervoy vozmozhnosti, kogda TV vklyuchen
+if not defined APPSDONE if not "!AP!"=="1111" call :apps
 goto :eof
 
 :dev
@@ -71,9 +76,16 @@ goto :eof
 
 :upd
 if not "!HV!"=="!LV!" (curl -sfL -o hotel-tv.apk https://github.com/mms377777-png/hotel-tv/releases/download/latest/hotel-tv.apk && (echo !LV!)> apkver_have.txt & set "HV=!LV!")
+rem 06.11.2026: chto na ekrane do obnovleniya - esli gost smotrit drugoe prilozhenie, nash ekran posle obnovleniya ne otkryvaem (ne vybivaem gostya)
+set "FG="
+for /f "delims=" %%f in ('%A% -s "%S%" shell "dumpsys window | grep mCurrentFocus" 2^>nul') do set "FG=%%f"
+set "OURS=1"
+if defined FG set "OURS="
+if defined FG if not "!FG:hotelkms=!"=="!FG!" set "OURS=1"
+if defined FG if not "!FG:launcher=!"=="!FG!" set "OURS=1"
 %A% -s "%S%" install -r hotel-tv.apk > upd.txt 2>&1
 %A% -s "%S%" shell pm grant ru.hotelkms.tv android.permission.WRITE_SECURE_SETTINGS >nul 2>&1
-%A% -s "%S%" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
+if defined OURS %A% -s "%S%" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
 findstr /c:"Success" upd.txt >nul && set "RES=ok" || set "RES=oshibka"
 rem 06.11.2026: pri oshibke v zhurnal - prichina iz otveta ustanovki (offline, mesto, podpis)
 if "!RES!"=="ok" (<nul set /p "=%HN%;obnovlenie;!R!;!V! na !LV! ok" > updlog.txt) else (
@@ -100,10 +112,20 @@ set "M=!M:.=_!"
 set "M=!M: =_!"
 set "M=!M:(=_!"
 set "M=!M:)=_!"
-set "LD="
-if exist "!M!.txt" set /p LD=<"!M!.txt"
-if "!LD!"=="%date%" goto :eof
-(echo %date%)> "!M!.txt"
+rem 06.11.2026: ne raz v den, a raz v 2 chasa, ne bolshe 3 popytok v den na odin TV (RuStore na ekrane u gostya ~1-2 min)
+rem fayl: <data> <minuta dnya poslednej popytki> <popytok segodnya>
+set "T=%time: =0%"
+set /a NOWM=1%T:~0,2%*60-6000+1%T:~3,2%-100
+set "LD=" & set "LM=0" & set "LN=0"
+if exist "!M!.txt" for /f "usebackq tokens=1-3" %%x in ("!M!.txt") do (set "LD=%%x" & set "LM=%%y" & set "LN=%%z")
+if not defined LN set "LN=0"
+if not "!LD!"=="%date%" (set "LM=-999" & set "LN=0")
+set /a GAP=NOWM-LM
+if !LN! GEQ 3 goto :eof
+if !GAP! LSS 120 goto :eof
+set /a LN=LN+1
+(echo %date% !NOWM! !LN!)> "!M!.txt"
+set "APPSDONE=1"
 curl -sfL -o apps.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/apps.bat
 call apps.bat %HN% "%S%"
 cd /d C:\hoteltv
