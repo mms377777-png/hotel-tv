@@ -24,6 +24,11 @@ goto :eof
 set S=%~1
 rem ONLY=<ustroystvo> (iz tvcare :pair) - stavit tolko na nego
 if defined ONLY if /i not "%S%"=="%ONLY%" goto :eof
+rem 06.11.2026: TV, gde prilozhenie uzhe est, ne trogaem. Ran'she every_zavod zapuskal zavod.bat, esli hot' odin TV ne otvetil (sboy svyazi),
+rem i zavod.bat kazhdye 5 minut perestavlyal prilozhenie na VSEH TV, perezapisyval nastroyki (imya gostya) i nazhimal "Domoy" - vybival gostey
+set "HAVE="
+if not defined ONLY for /f %%p in ('%ADB% -s %S% shell pm path ru.hotelkms.tv 2^>nul ^| findstr /b "package:"') do set "HAVE=1"
+if defined HAVE (echo HAVE %S% >> %LOG%& goto :eof)
 set IP=
 set IPM=
 for /f "tokens=4" %%i in ('%ADB% -s %S% shell ip -4 -o addr show wlan0') do set IPM=%%i
