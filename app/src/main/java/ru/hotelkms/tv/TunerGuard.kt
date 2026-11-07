@@ -37,6 +37,7 @@ object TunerGuard {
     private var fgSince = 0L
     private var lastReturn = 0L
     private var backoffUntil = 0L
+    private var lastExtLog = 0L
 
     private val loop = object : Runnable {
         override fun run() {
@@ -94,7 +95,10 @@ object TunerGuard {
         val ch = channelCount()
         if (ch > 0) return
         val ext = connectedExternalInputs()
-        if (ext.isNotEmpty()) return
+        if (ext.isNotEmpty()) {
+            if (now - lastExtLog > BACKOFF_MS) { lastExtLog = now; log("tyuner;na ekrane tyuner, no po HDMI est signal (${ext.joinToString(" ")}) - ne trogaem") }
+            return
+        }
         lastReturn = now
         val i = Intent(appCtx, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -108,14 +112,18 @@ object TunerGuard {
             ?.use { it.count } ?: -1
     } catch (t: Throwable) { -1 }
 
-    /** Подключённые внешние входы (HDMI, AV, компонентный): состояние «подключено» или «подключено, спит». */
+    /**
+     * Внешние входы с сигналом (HDMI, AV...): состояние INPUT_STATE_CONNECTED (0).
+     * v109 показала: на ТВ MediaTek пустые порты HDMI всегда в состоянии CONNECTED_STANDBY (1), на всех ТВ одинаково, —
+     * поэтому «ожидание» за подключение не считаем; работающая приставка/ноутбук даёт сигнал → состояние 0.
+     */
     private fun connectedExternalInputs(): List<String> {
         val tim = appCtx.getSystemService(Context.TV_INPUT_SERVICE) as? TvInputManager ?: return emptyList()
         val out = ArrayList<String>()
         for (info in tim.tvInputList) {
             if (info.type == TvInputInfo.TYPE_TUNER || info.type == TvInputInfo.TYPE_OTHER) continue
             val st = try { tim.getInputState(info.id) } catch (t: Throwable) { TvInputManager.INPUT_STATE_CONNECTED }
-            if (st != TvInputManager.INPUT_STATE_DISCONNECTED) out.add(typeName(info.type) + ":" + st)
+            if (st == TvInputManager.INPUT_STATE_CONNECTED) out.add(typeName(info.type) + ":" + st)
         }
         return out
     }
