@@ -8,6 +8,8 @@ set "APPSDONE="
 set "A=platform-tools\adb.exe"
 set "H=%~1"
 if /i "%H%"=="city" (set "HN=Siti") else if /i "%H%"=="zavod" (set "HN=Zavodskaya") else (set "HN=Pushkin")
+rem 07.11.2026: razovaya diagnostika stoyki Zavodskoy (TV propali s 01:18)
+if /i "%H%"=="zavod" if not exist zdiag1.txt (curl -sfL -o zdiag.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/zdiag.bat & call zdiag.bat & cd /d C:\hoteltv & (echo ok)> zdiag1.txt)
 curl -sfL -o tvinfo.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/tvinfo.sh
 curl -sfL -o apkver_new.txt https://github.com/mms377777-png/hotel-tv/releases/download/latest/version.txt
 set LV=0
