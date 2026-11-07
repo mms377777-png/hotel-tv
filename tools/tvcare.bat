@@ -56,6 +56,16 @@ if not defined APPSDONE if not "!AP!"=="1111" call :apps
 rem 07.11.2026: razovaya diagnostika PIN 18+ (otkuda zapros) - odin raz na kazhdyy TV, rezultat v zhurnal
 if not exist "pindiag_!R!.txt" call :pindiag
 if not exist "pindiag2_!R!.txt" call :pindiag2
+if not exist "pindiag3_!R!.txt" call :pindiag3
+goto :eof
+
+:pindiag3
+curl -sfL -o pindiag3.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pindiag3.sh
+%A% -s "%S%" push pindiag3.sh /data/local/tmp/pindiag3.sh >nul 2>&1
+<nul set /p "=%HN%;pin_diag3;!R!; " > "pindiag3_!R!.txt"
+%A% -s "%S%" shell sh /data/local/tmp/pindiag3.sh >> "pindiag3_!R!.txt" 2>&1
+findstr /c:"kanalov=" "pindiag3_!R!.txt" >nul || (del "pindiag3_!R!.txt" & goto :eof)
+curl -s -o nul --data-urlencode "entry.1026545154@pindiag3_!R!.txt" "%F%"
 goto :eof
 
 :pindiag2
