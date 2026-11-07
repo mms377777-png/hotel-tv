@@ -53,6 +53,16 @@ if !LV! GTR 0 if !V! GTR 0 if !V! LSS !LV! call :upd
 rem prilozheniya dogonyaem ne bolshe chem na odnom TV za zapusk: ustanovka idet minutami, a zapusk dolzhen ukladyvatsya v 5 minut (inache komandy bota zhdut)
 rem 06.11.2026 (Mikhail): stavim i pri goste v nomere - pri pervoy vozmozhnosti, kogda TV vklyuchen
 if not defined APPSDONE if not "!AP!"=="1111" call :apps
+rem 07.11.2026: razovaya diagnostika PIN 18+ (otkuda zapros) - odin raz na kazhdyy TV, rezultat v zhurnal
+if not exist "pindiag_!R!.txt" call :pindiag
+goto :eof
+
+:pindiag
+if not exist pindiag.sh curl -sfL -o pindiag.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pindiag.sh
+%A% -s "%S%" push pindiag.sh /data/local/tmp/pindiag.sh >nul 2>&1
+<nul set /p "=%HN%;pin_diag;!R!; " > "pindiag_!R!.txt"
+%A% -s "%S%" shell sh /data/local/tmp/pindiag.sh >> "pindiag_!R!.txt" 2>&1
+curl -s -o nul --data-urlencode "entry.1026545154@pindiag_!R!.txt" "%F%"
 goto :eof
 
 :dev
