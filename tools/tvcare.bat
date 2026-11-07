@@ -57,6 +57,8 @@ rem 07.11.2026: razovaya diagnostika PIN 18+ (otkuda zapros) - odin raz na kazhd
 rem 07.11.2026: storozh tyunera v prilozhenii - razresheniya (istoriya ekranov, otkryt svoy ekran), odin raz na TV
 if not exist "perm1_!R!.txt" call :perm "%S%" & (echo ok)> "perm1_!R!.txt"
 if !V! GEQ 110 if not exist "tgcheck110_!R!.txt" call :tgcheck
+rem 07.11.2026: zhivaya proverka storozha tyunera - odin raz na TV resepshena Siti (gostya net): otkryt tyuner, cherez 40 s posmotret, chto na ekrane
+if /i "%H%"=="city" if "!R!"=="0" if !V! GEQ 110 if not exist tgtest110.txt call :tgtest
 if not exist "pindiag_!R!.txt" call :pindiag
 if not exist "pindiag2_!R!.txt" call :pindiag2
 if not exist "pindiag3_!R!.txt" call :pindiag3
@@ -85,6 +87,18 @@ rem storozh tyunera (TunerGuard): istoriya ekranov, otkryt ekran prilozheniya iz
 %A% -s "%~1" shell appops set ru.hotelkms.tv GET_USAGE_STATS allow >nul 2>&1
 %A% -s "%~1" shell appops set ru.hotelkms.tv SYSTEM_ALERT_WINDOW allow >nul 2>&1
 %A% -s "%~1" shell pm grant ru.hotelkms.tv com.android.providers.tv.permission.READ_EPG_DATA >nul 2>&1
+goto :eof
+
+:tgtest
+%A% -s "%S%" shell am start -n com.mediatek.wwtv.tvcenter/.nav.TurnkeyUiMainActivity >nul 2>&1
+timeout /t 5 /nobreak >nul
+set "F1="
+for /f "delims=" %%f in ('%A% -s "%S%" shell "dumpsys window | grep mCurrentFocus" 2^>nul') do set "F1=%%f"
+timeout /t 40 /nobreak >nul
+set "F2="
+for /f "delims=" %%f in ('%A% -s "%S%" shell "dumpsys window | grep mCurrentFocus" 2^>nul') do set "F2=%%f"
+(echo %HN%;tg_test;!R!; cherez 5 s: !F1! ^| cherez 45 s: !F2!)> tgtest110.txt
+curl -s -o nul --data-urlencode "entry.1026545154@tgtest110.txt" "%F%"
 goto :eof
 
 :tgcheck
