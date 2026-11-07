@@ -54,6 +54,8 @@ rem prilozheniya dogonyaem ne bolshe chem na odnom TV za zapusk: ustanovka idet 
 rem 06.11.2026 (Mikhail): stavim i pri goste v nomere - pri pervoy vozmozhnosti, kogda TV vklyuchen
 if not defined APPSDONE if not "!AP!"=="1111" call :apps
 rem 07.11.2026: razovaya diagnostika PIN 18+ (otkuda zapros) - odin raz na kazhdyy TV, rezultat v zhurnal
+rem 07.11.2026: storozh tyunera v prilozhenii - razresheniya (istoriya ekranov, otkryt svoy ekran), odin raz na TV
+if not exist "perm1_!R!.txt" call :perm "%S%" & (echo ok)> "perm1_!R!.txt"
 if not exist "pindiag_!R!.txt" call :pindiag
 if not exist "pindiag2_!R!.txt" call :pindiag2
 if not exist "pindiag3_!R!.txt" call :pindiag3
@@ -75,6 +77,13 @@ curl -sfL -o pindiag2.sh https://raw.githubusercontent.com/mms377777-png/hotel-t
 %A% -s "%S%" shell sh /data/local/tmp/pindiag2.sh >> "pindiag2_!R!.txt" 2>&1
 findstr /c:"tz=" "pindiag2_!R!.txt" >nul || (del "pindiag2_!R!.txt" & goto :eof)
 curl -s -o nul --data-urlencode "entry.1026545154@pindiag2_!R!.txt" "%F%"
+goto :eof
+
+:perm
+rem storozh tyunera (TunerGuard): istoriya ekranov, otkryt ekran prilozheniya iz fona, chislo kanalov
+%A% -s "%~1" shell appops set ru.hotelkms.tv GET_USAGE_STATS allow >nul 2>&1
+%A% -s "%~1" shell appops set ru.hotelkms.tv SYSTEM_ALERT_WINDOW allow >nul 2>&1
+%A% -s "%~1" shell pm grant ru.hotelkms.tv com.android.providers.tv.permission.READ_EPG_DATA >nul 2>&1
 goto :eof
 
 :pindiag
@@ -115,6 +124,7 @@ if defined FG if not "!FG:hotelkms=!"=="!FG!" set "OURS=1"
 if defined FG if not "!FG:launcher=!"=="!FG!" set "OURS=1"
 %A% -s "%S%" install -r hotel-tv.apk > upd.txt 2>&1
 %A% -s "%S%" shell pm grant ru.hotelkms.tv android.permission.WRITE_SECURE_SETTINGS >nul 2>&1
+call :perm "%S%"
 if defined OURS %A% -s "%S%" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
 findstr /c:"Success" upd.txt >nul && set "RES=ok" || set "RES=oshibka"
 rem 06.11.2026: pri oshibke v zhurnal - prichina iz otveta ustanovki (offline, mesto, podpis)
@@ -236,6 +246,7 @@ curl -sfL -o hotel-tv.apk https://github.com/mms377777-png/hotel-tv/releases/dow
 %A% -s "!DS!" install -r hotel-tv.apk > upd.txt 2>&1
 findstr /c:"Success" upd.txt >nul || set "RES=err"
 %A% -s "!DS!" shell pm grant ru.hotelkms.tv android.permission.WRITE_SECURE_SETTINGS >nul 2>&1
+call :perm "!DS!"
 %A% -s "!DS!" shell cmd package set-home-activity ru.hotelkms.tv/.MainActivity >nul 2>&1
 %A% -s "!DS!" shell cmd role add-role-holder --user 0 android.app.role.HOME ru.hotelkms.tv >nul 2>&1
 %A% -s "!DS!" shell pm disable-user --user 0 com.google.android.tvlauncher >nul 2>&1

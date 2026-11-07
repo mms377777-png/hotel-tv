@@ -9,5 +9,6 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         AdbKeeper.ensure(context)
         AutoChecker.start(context)
+        TunerGuard.start(context)
     }
 }
