@@ -55,6 +55,16 @@ rem 06.11.2026 (Mikhail): stavim i pri goste v nomere - pri pervoy vozmozhnosti,
 if not defined APPSDONE if not "!AP!"=="1111" call :apps
 rem 07.11.2026: razovaya diagnostika PIN 18+ (otkuda zapros) - odin raz na kazhdyy TV, rezultat v zhurnal
 if not exist "pindiag_!R!.txt" call :pindiag
+if not exist "pindiag2_!R!.txt" call :pindiag2
+goto :eof
+
+:pindiag2
+curl -sfL -o pindiag2.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/pindiag2.sh
+%A% -s "%S%" push pindiag2.sh /data/local/tmp/pindiag2.sh >nul 2>&1
+<nul set /p "=%HN%;pin_diag2;!R!; " > "pindiag2_!R!.txt"
+%A% -s "%S%" shell sh /data/local/tmp/pindiag2.sh >> "pindiag2_!R!.txt" 2>&1
+findstr /c:"tz=" "pindiag2_!R!.txt" >nul || (del "pindiag2_!R!.txt" & goto :eof)
+curl -s -o nul --data-urlencode "entry.1026545154@pindiag2_!R!.txt" "%F%"
 goto :eof
 
 :pindiag
