@@ -77,8 +77,11 @@ object TunerGuard {
         return any || lastEventTs > 0L
     }
 
+    private var ticks = 0L
     private fun tick() {
-        if (!updateForeground()) return // нет доступа к истории экранов — ничего не делаем
+        val acc = updateForeground()
+        if (ticks++ % 360 == 0L) Log.i(TAG, "TunerGuard: alive, access=$acc fg=$fgPkg/$fgClass") // раз в час
+        if (!acc) return // нет доступа к истории экранов — ничего не делаем
         val now = System.currentTimeMillis()
         if (fgPkg != TUNER_PKG || !fgClass.endsWith(TUNER_MAIN)) return
         if (now - fgSince < STAY_MS || now < backoffUntil) return
@@ -135,7 +138,9 @@ object TunerGuard {
         val tim = appCtx.getSystemService(Context.TV_INPUT_SERVICE) as? TvInputManager
         val inputs = tim?.tvInputList?.joinToString(" ") { typeName(it.type) + "=" + (try { tim.getInputState(it.id) } catch (t: Throwable) { -1 }) } ?: "?"
         val ok = send("tyuner;sostoyanie v$ver: dostup=${if (access) "da" else "net"} kanalov=${channelCount()} vhody: $inputs")
+        Log.i(TAG, "TunerGuard: state report sent=$ok")
         if (ok) sp.edit().putString("reported", ver).apply()
+        else Bg.main.postDelayed({ Bg.io.execute { try { reportStateOnce() } catch (t: Throwable) {} } }, 10L * 60 * 1000)
     }
 
     private fun log(text: String) { Log.i(TAG, "TunerGuard: $text"); Bg.io.execute { send(text) } }

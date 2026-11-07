@@ -7,6 +7,6 @@ class HotelApp : Application() {
         super.onCreate()
         AdbKeeper.ensure(this)
         AutoChecker.start(this)
-        TunerGuard.start(this)
+        TunerGuardService.start(this)
     }
 }
