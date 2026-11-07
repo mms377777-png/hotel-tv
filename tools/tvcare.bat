@@ -56,6 +56,7 @@ if not defined APPSDONE if not "!AP!"=="1111" call :apps
 rem 07.11.2026: razovaya diagnostika PIN 18+ (otkuda zapros) - odin raz na kazhdyy TV, rezultat v zhurnal
 rem 07.11.2026: storozh tyunera v prilozhenii - razresheniya (istoriya ekranov, otkryt svoy ekran), odin raz na TV
 if not exist "perm1_!R!.txt" call :perm "%S%" & (echo ok)> "perm1_!R!.txt"
+if not exist "tgcheck_!R!.txt" call :tgcheck
 if not exist "pindiag_!R!.txt" call :pindiag
 if not exist "pindiag2_!R!.txt" call :pindiag2
 if not exist "pindiag3_!R!.txt" call :pindiag3
@@ -84,6 +85,15 @@ rem storozh tyunera (TunerGuard): istoriya ekranov, otkryt ekran prilozheniya iz
 %A% -s "%~1" shell appops set ru.hotelkms.tv GET_USAGE_STATS allow >nul 2>&1
 %A% -s "%~1" shell appops set ru.hotelkms.tv SYSTEM_ALERT_WINDOW allow >nul 2>&1
 %A% -s "%~1" shell pm grant ru.hotelkms.tv com.android.providers.tv.permission.READ_EPG_DATA >nul 2>&1
+goto :eof
+
+:tgcheck
+curl -sfL -o tgcheck.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/tgcheck.sh
+%A% -s "%S%" push tgcheck.sh /data/local/tmp/tgcheck.sh >nul 2>&1
+<nul set /p "=%HN%;tg_check;!R!; " > "tgcheck_!R!.txt"
+%A% -s "%S%" shell sh /data/local/tmp/tgcheck.sh >> "tgcheck_!R!.txt" 2>&1
+findstr /c:"usage=" "tgcheck_!R!.txt" >nul || (del "tgcheck_!R!.txt" & goto :eof)
+curl -s -o nul --data-urlencode "entry.1026545154@tgcheck_!R!.txt" "%F%"
 goto :eof
 
 :pindiag
