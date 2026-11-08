@@ -33,7 +33,9 @@ class GuestReceiver : BroadcastReceiver() {
             }
             else -> return
         }.take(60)
-        val old = prefs.guestName.trim()
+        // 08.11.2026: имя могло уже снять само приложение (GuestCheck) — для ответа стойке берём его
+        val old = prefs.guestName.trim().ifEmpty { prefs.guestCleared.trim() }
+        prefs.guestCleared = ""
         prefs.guestName = name
         resultData = if (old.isNotEmpty() && old != name) "OUT" else "OK"
     }

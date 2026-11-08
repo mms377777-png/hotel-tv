@@ -30,6 +30,8 @@ class TunerGuardService : Service() {
             else startForeground(1, n)
         } catch (t: Throwable) { Log.w("HotelTV", "TunerGuardService foreground: $t") }
         TunerGuard.start(this)
+        NetTime.start(this)
+        GuestCheck.start(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY

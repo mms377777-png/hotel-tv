@@ -175,15 +175,24 @@ class MainActivity : Activity() {
     }
 
     private fun updateClock() {
-        val now = Date()
-        clock.text = timeFmt.format(now)
-        date.text = dateFmt.format(now).replaceFirstChar { it.titlecase(ru) }
+        // 08.11.2026: время только из сети (NetTime); пока его нет — часы и дату не показываем, чем показывать неверные
+        val ms = NetTime.now()
+        if (ms == null) {
+            clock.text = ""
+            date.text = ""
+        } else {
+            val now = Date(ms)
+            clock.text = timeFmt.format(now)
+            date.text = dateFmt.format(now).replaceFirstChar { it.titlecase(ru) }
+        }
         updateGreeting()
     }
 
     private fun updateGreeting() {
-        val hour = Calendar.getInstance(tz).get(Calendar.HOUR_OF_DAY)
+        val ms = NetTime.now()
+        val hour = if (ms == null) -1 else Calendar.getInstance(tz).apply { timeInMillis = ms }.get(Calendar.HOUR_OF_DAY)
         val hello = when (hour) {
+            -1 -> "Здравствуйте"
             in 5..11 -> "Доброе утро"
             in 12..17 -> "Добрый день"
             in 18..22 -> "Добрый вечер"
@@ -260,6 +269,10 @@ class MainActivity : Activity() {
         super.onResume()
         AdbKeeper.ensure(this)
         AutoChecker.onWake(this)
+        NetTime.start(this)
+        NetTime.refreshIfOld()
+        GuestCheck.start(this)
+        GuestCheck.runNow()
         resumed = true
         refreshLabels()
         refreshTileIcons()

@@ -23,6 +23,15 @@ class Prefs(context: Context) {
         get() = str("guest_name", Config.DEFAULT_GUEST_NAME)
         set(v) = put("guest_name", v)
 
+    /** Имя, которое приложение само сняло с экрана (GuestCheck), — чтобы стойке ответить OUT и почистить ТВ. */
+    var guestCleared: String
+        get() = str("guest_cleared", "")
+        set(v) = put("guest_cleared", v)
+
+    var guestClearedPair: String
+        get() = str("guest_cleared_pair", "")
+        set(v) = put("guest_cleared_pair", v)
+
     var wifiSsid: String
         get() = str("wifi_ssid", "")
         set(v) = put("wifi_ssid", v)
