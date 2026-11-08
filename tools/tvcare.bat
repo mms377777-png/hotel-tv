@@ -65,16 +65,16 @@ rem 08.11.2026: chasy TV - odin raz na TV: skolko otstayut, vklyuchit avtovremya
 if not exist "clk1_!R!.txt" call :clk
 if not exist "pindiag_!R!.txt" call :pindiag
 if not exist "pindiag2_!R!.txt" call :pindiag2
-if not exist "pindiag3_!R!.txt" call :clk
+if not exist "pindiag3_!R!.txt" call :pindiag3
+goto :eof
+
+:clk
 curl -sfL -o clk.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/clk.sh
 %A% -s "%S%" push clk.sh /data/local/tmp/clk.sh >nul 2>&1
 <nul set /p "=%HN%;chasy;!R!; " > "clk1_!R!.txt"
 %A% -s "%S%" shell sh /data/local/tmp/clk.sh >> "clk1_!R!.txt" 2>&1
 findstr /c:"epoch=" "clk1_!R!.txt" >nul || (del "clk1_!R!.txt" & goto :eof)
 curl -s -o nul --data-urlencode "entry.1026545154@clk1_!R!.txt" "%F%"
-goto :eof
-
-:pindiag3
 goto :eof
 
 :pindiag3
