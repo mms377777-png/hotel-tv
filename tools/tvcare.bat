@@ -62,20 +62,20 @@ if !V! GEQ 110 if not exist "tgcheck110_!R!.txt" call :tgcheck
 rem 07.11.2026: zhivaya proverka storozha tyunera - odin raz na TV resepshena Siti (gostya net): otkryt tyuner, cherez 40 s posmotret, chto na ekrane
 if /i "%H%"=="city" if "!R!"=="0" if !V! GEQ 110 if not exist tgtest110.txt call :tgtest
 rem 08.11.2026: chasy TV - odin raz na TV: skolko otstayut, vklyuchit avtovremya i sinhronizirovat
-if not exist "clk1_!R!.txt" call :gctest
-%A% -s "%S%" shell am broadcast -n ru.hotelkms.tv/.GuestReceiver --es b64 0KLQtdGB0YI= > gctest111.txt 2>&1
-timeout /t 25 /nobreak >nul
-%A% -s "%S%" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
-(echo %HN%;gc_test;!R!; imya Test postavleno, cherez 25 s otkryt glavnyy ekran - zhdem stroku gost ot prilozheniya)> gctest111.txt
-curl -s -o nul --data-urlencode "entry.1026545154@gctest111.txt" "%F%"
-goto :eof
-
-:clk
+if not exist "clk1_!R!.txt" call :clk
 rem 08.11.2026: zhivaya proverka GuestCheck (v111) - odin raz na Siti 11 (nomer svoboden po 1S): imya "Test" -> prilozhenie samo snimaet
 if /i "%H%"=="city" if "!R!"=="11" if !V! GEQ 111 if not exist gctest111.txt call :gctest
 if not exist "pindiag_!R!.txt" call :pindiag
 if not exist "pindiag2_!R!.txt" call :pindiag2
 if not exist "pindiag3_!R!.txt" call :pindiag3
+goto :eof
+
+:gctest
+%A% -s "%S%" shell am broadcast -n ru.hotelkms.tv/.GuestReceiver --es b64 0KLQtdGB0YI= > gctest111.txt 2>&1
+timeout /t 25 /nobreak >nul
+%A% -s "%S%" shell am start -n ru.hotelkms.tv/.MainActivity >nul 2>&1
+(echo %HN%;gc_test;!R!; imya Test postavleno, cherez 25 s otkryt glavnyy ekran - zhdem stroku gost ot prilozheniya)> gctest111.txt
+curl -s -o nul --data-urlencode "entry.1026545154@gctest111.txt" "%F%"
 goto :eof
 
 :clk
