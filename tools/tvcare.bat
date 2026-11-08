@@ -61,9 +61,20 @@ if not exist "perm1_!R!.txt" call :perm "%S%" & (echo ok)> "perm1_!R!.txt"
 if !V! GEQ 110 if not exist "tgcheck110_!R!.txt" call :tgcheck
 rem 07.11.2026: zhivaya proverka storozha tyunera - odin raz na TV resepshena Siti (gostya net): otkryt tyuner, cherez 40 s posmotret, chto na ekrane
 if /i "%H%"=="city" if "!R!"=="0" if !V! GEQ 110 if not exist tgtest110.txt call :tgtest
+rem 08.11.2026: chasy TV - odin raz na TV: skolko otstayut, vklyuchit avtovremya i sinhronizirovat
+if not exist "clk1_!R!.txt" call :clk
 if not exist "pindiag_!R!.txt" call :pindiag
 if not exist "pindiag2_!R!.txt" call :pindiag2
-if not exist "pindiag3_!R!.txt" call :pindiag3
+if not exist "pindiag3_!R!.txt" call :clk
+curl -sfL -o clk.sh https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/clk.sh
+%A% -s "%S%" push clk.sh /data/local/tmp/clk.sh >nul 2>&1
+<nul set /p "=%HN%;chasy;!R!; " > "clk1_!R!.txt"
+%A% -s "%S%" shell sh /data/local/tmp/clk.sh >> "clk1_!R!.txt" 2>&1
+findstr /c:"epoch=" "clk1_!R!.txt" >nul || (del "clk1_!R!.txt" & goto :eof)
+curl -s -o nul --data-urlencode "entry.1026545154@clk1_!R!.txt" "%F%"
+goto :eof
+
+:pindiag3
 goto :eof
 
 :pindiag3
