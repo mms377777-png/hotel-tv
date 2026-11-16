@@ -18,19 +18,22 @@ function Strip([string]$h) {
 }
 function Get-Page([string]$url) {
   $r = @{ status = ''; body = ''; auth = '' }
+  $h = $Out + '.hdr'; $b = $Out + '.body'
+  Remove-Item $h, $b -ErrorAction SilentlyContinue
   try {
-    $w = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 6 -MaximumRedirection 0 -Proxy $null -Headers @{ 'User-Agent' = 'Mozilla/5.0' }
-    $r.status = [string][int]$w.StatusCode
-    $r.body = Cut ([string]$w.Content) 200000
-  } catch {
-    $resp = $_.Exception.Response
-    if ($resp -ne $null) {
-      $r.status = [string][int]$resp.StatusCode
-      try { $r.auth = [string]$resp.Headers['WWW-Authenticate'] } catch { }
-    } else {
-      $r.status = 'err:' + (Cut (Clean $_.Exception.Message) 60)
+    & curl.exe -s -m 6 --noproxy '*' -A 'Mozilla/5.0' --max-filesize 300000 -D $h -o $b $url 2>$null | Out-Null
+    if (Test-Path $h) {
+      $hl = [System.IO.File]::ReadAllLines($h)
+      $m = [regex]::Match([string]$hl[0], 'HTTP/\S+\s+(\d{3})')
+      if ($m.Success) { $r.status = $m.Groups[1].Value }
+      foreach ($l in $hl) { if ($l -match '(?i)^WWW-Authenticate:\s*(.*)$') { $r.auth = $Matches[1] } }
     }
+    if (Test-Path $b) { $r.body = Cut ([System.IO.File]::ReadAllText($b, [System.Text.Encoding]::UTF8)) 200000 }
+    if ($r.status -eq '') { $r.status = 'err:net' }
+  } catch {
+    $r.status = 'err:' + (Cut (Clean $_.Exception.Message) 60)
   }
+  Remove-Item $h, $b -ErrorAction SilentlyContinue
   $r
 }
 function Extract([string]$body) {
@@ -73,6 +76,6 @@ try {
   }
 } catch { $arp += 'arp;err;' + (Cut (Clean $_.Exception.Message) 60) }
 
-$head = 'Pushkin;telefony;v26;ips=' + $Ips.Count + ';stranic_s_dannymi=' + $ok + ';arp=' + $arp.Count
+$head = 'Pushkin;telefony;v27;ips=' + $Ips.Count + ';stranic_s_dannymi=' + $ok + ';arp=' + $arp.Count
 $all = @($head) + $lines + $arp
 [System.IO.File]::WriteAllText($Out, ($all -join "`r`n"), (New-Object System.Text.UTF8Encoding($false)))
