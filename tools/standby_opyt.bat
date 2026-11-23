@@ -4,15 +4,26 @@ rem standby_opyt.bat (23.11.2026): odnorazovyy opyt rezhima ozhidaniya TV, vyzyv
 rem Ishchet sredi podklyuchennyh TV tot, chto na glavnom ekrane nashego prilozheniya (gost ne smotrit). Esli takogo net - nichego ne delaet, flag ostaetsya.
 rem Dalee: low_power_standby_enabled=0, KEYCODE_SLEEP, ping 2 min, adb connect, WoL, ping, WAKEUP. Obshchee vremya do ~5 min.
 cd /d C:\hoteltv
-set "T=%time: =0%"
-set /a HH=1!T:~0,2!-100
-if !HH! GEQ 6 goto :eof
+set "ROOM="
+if exist opyt.go set /p ROOM=<opyt.go
+echo !ROOM!| findstr /r "^[0-9][0-9]*$" >nul || set "ROOM="
+if not defined ROOM (
+  set "T=%time: =0%"
+  set /a HH=1!T:~0,2!-100
+  if !HH! GEQ 6 goto :eof
+)
 set "A=platform-tools\adb.exe"
 set "F=https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
 set "SN="
 for /f "skip=1 tokens=1,2" %%a in ('%A% devices') do if "%%b"=="device" if not defined SN (
-  %A% -s %%a shell "dumpsys window | grep -E 'mCurrentFocus' | head -2" > focusx.txt 2>&1
-  findstr /c:"hotelkms" focusx.txt >nul && set "SN=%%a"
+  if defined ROOM (
+    set "PSN="
+    for /f %%s in ('%A% -s %%a shell getprop ro.serialno') do set "PSN=%%s"
+    findstr /b /c:"!PSN! !ROOM!" rooms_sn.txt >nul 2>&1 && set "SN=%%a"
+  ) else (
+    %A% -s %%a shell "dumpsys window | grep -E 'mCurrentFocus' | head -2" > focusx.txt 2>&1
+    findstr /c:"hotelkms" focusx.txt >nul && set "SN=%%a"
+  )
 )
 if not defined SN (
   if not exist opyt.skipped (
