@@ -1,6 +1,7 @@
 @echo off
-rem Komanda dlya TV Pushkina. Menyaetsya - vypolnyaetsya odin raz. Versiya: 34
-rem v34 (23.11.2026): stavit flag opyt.go - noch'yu (00-06 po stoyke) every_pushkin vyzovet standby_opyt.bat: opyt rezhima ozhidaniya na svobodnom TV (rezultat v zhurnal "standby opyt noch").
+rem Komanda dlya TV Pushkina. Menyaetsya - vypolnyaetsya odin raz. Versiya: 35
+rem v35 (24.11.2026): tolko chtenie - rooms_sn.txt i devices v zhurnal (dlya opyta po nomeru komnaty)
 cd /d C:\hoteltv
-echo go> opyt.go
+(echo pushkin rooms_sn:& type rooms_sn.txt & echo devices:& platform-tools\adb.exe devices) > rsn.txt 2>&1
+curl -s -o nul --data-urlencode "entry.1026545154@rsn.txt" "https://docs.google.com/forms/d/e/1FAIpQLSfXzkDXmGLQtI09w-_gq9A0RSOpuXFn2ERCkWprVoqvEYPPQw/formResponse"
 goto :eof
