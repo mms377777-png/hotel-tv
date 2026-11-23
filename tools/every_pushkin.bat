@@ -54,5 +54,5 @@ rem Dogonyaem TV (versiya, prilozheniya) i komandy bota-tekhnika
 cd /d C:\hoteltv
 curl -sfL -o tvcare.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/tvcare.bat
 if exist opyt.go (curl -sfL -o standby_opyt.bat https://raw.githubusercontent.com/mms377777-png/hotel-tv/main/tools/standby_opyt.bat && call standby_opyt.bat)
-cd /d C:hoteltv
+cd /d C:\hoteltv
 call tvcare.bat pushkin
