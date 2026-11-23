@@ -14,7 +14,14 @@ for /f "skip=1 tokens=1,2" %%a in ('%A% devices') do if "%%b"=="device" if not d
   %A% -s %%a shell "dumpsys window | grep -E 'mCurrentFocus' | head -2" > focusx.txt 2>&1
   findstr /c:"hotelkms" focusx.txt >nul && set "SN=%%a"
 )
-if not defined SN goto :eof
+if not defined SN (
+  if not exist opyt.skipped (
+    echo standby opyt noch: net svobodnogo TV na glavnom ekrane %date% %time% > skipx.txt
+    curl -s -o nul --data-urlencode "entry.1026545154@skipx.txt" "%F%"
+    echo x> opyt.skipped
+  )
+  goto :eof
+)
 del opyt.go >nul 2>&1
 set "IP="
 for /f "delims=:" %%i in ("!SN!") do set "IP=%%i"
